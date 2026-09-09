@@ -1,295 +1,584 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Lấy Key Tự Động - GRX</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .bg-animated {
-            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #111827, #020617);
-            background-size: 400% 400%;
-            animation: gradient 15s ease infinite;
-        }
-        @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        .loader {
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border-left-color: #3b82f6;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>GRX Key System</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background:
+        radial-gradient(
+            circle at top,
+            #18234a,
+            #070914 55%,
+            #03040a
+        );
+
+    color: white;
+}
+
+.container {
+    width: 420px;
+    max-width: 92%;
+
+    padding: 35px;
+
+    border-radius: 22px;
+
+    background:
+        rgba(12, 15, 30, 0.95);
+
+    border:
+        1px solid rgba(100, 120, 255, 0.35);
+
+    box-shadow:
+        0 0 40px rgba(50, 70, 255, 0.25);
+}
+
+.logo {
+    text-align: center;
+
+    font-size: 34px;
+    font-weight: 900;
+
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    text-align: center;
+
+    color: #9ca3af;
+
+    margin-bottom: 30px;
+}
+
+.question {
+    font-size: 22px;
+
+    text-align: center;
+
+    margin-bottom: 20px;
+}
+
+input {
+    width: 100%;
+
+    padding: 15px;
+
+    border-radius: 12px;
+
+    border:
+        1px solid #30364f;
+
+    background: #0b0e1b;
+
+    color: white;
+
+    outline: none;
+
+    text-align: center;
+
+    font-size: 18px;
+}
+
+input:focus {
+    border-color: #5865f2;
+}
+
+button {
+    width: 100%;
+
+    margin-top: 15px;
+
+    padding: 15px;
+
+    border: 0;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #5865f2,
+            #7c3aed
+        );
+
+    color: white;
+
+    font-size: 16px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+}
+
+.hidden {
+    display: none;
+}
+
+.loading-title {
+    text-align: center;
+
+    font-size: 22px;
+
+    margin-bottom: 20px;
+}
+
+.progress {
+    width: 100%;
+
+    height: 14px;
+
+    background: #171a2a;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+
+    width: 0%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #5865f2,
+            #a855f7
+        );
+
+    transition: width 1s linear;
+}
+
+.percent {
+    text-align: center;
+
+    margin-top: 15px;
+
+    color: #a5b4fc;
+}
+
+.key-box {
+    margin-top: 20px;
+
+    padding: 18px;
+
+    background: #080b16;
+
+    border:
+        1px solid #5865f2;
+
+    border-radius: 12px;
+
+    text-align: center;
+
+    font-size: 21px;
+
+    font-weight: bold;
+
+    word-break: break-all;
+
+    color: #8ea0ff;
+}
+
+.copy {
+    margin-top: 12px;
+}
+
+.status {
+    text-align: center;
+
+    margin-top: 15px;
+
+    color: #9ca3af;
+
+    font-size: 14px;
+}
+
+.error {
+    color: #ff6b6b;
+}
+
+.success {
+    color: #57f287;
+}
+
+</style>
 </head>
-<body class="bg-animated text-white min-h-screen flex items-center justify-center p-4">
 
-    <!-- 1. KHU VỰC CẢNH BÁO TRÁI PHÉP (Ẩn mặc định) -->
-    <div id="unauthorizedContainer" class="hidden bg-gray-900/90 backdrop-blur-lg border-2 border-red-600 p-8 rounded-2xl shadow-[0_0_30px_rgba(220,38,38,0.5)] max-w-md w-full text-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 text-red-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
-        <h1 class="text-3xl font-extrabold text-red-500 mb-2">TRUY CẬP TRÁI PHÉP!</h1>
-        <p class="text-gray-300 mb-4">Bạn đang cố tình truy cập link nhận Key khi chưa vượt qua bài kiểm tra xác minh, hoặc bạn đã copy link này từ một trình duyệt/thiết bị khác.</p>
-        <p class="text-yellow-400 font-bold mb-6 text-sm">Vui lòng quay lại trang chủ để trả lời câu hỏi xác minh!</p>
-        <button onclick="window.location.href=window.location.pathname" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200">
-            QUAY LẠI XÁC MINH
+<body>
+
+<div class="container">
+
+    <div class="logo">
+        GRX
+    </div>
+
+    <div class="subtitle">
+        Key System
+    </div>
+
+    <!-- QUESTION -->
+
+    <div id="questionBox">
+
+        <div class="question">
+            1 + 1 bằng bao nhiêu?
+        </div>
+
+        <input
+            id="answer"
+            type="number"
+            placeholder="Nhập đáp án"
+        >
+
+        <button onclick="checkAnswer()">
+            Xác nhận
         </button>
+
+        <div
+            id="questionStatus"
+            class="status"
+        ></div>
+
     </div>
 
-    <!-- 2. KHU VỰC GIỚI HẠN NHẬN KEY (Max 4 lần/ngày) -->
-    <div id="limitContainer" class="hidden bg-gray-900/90 backdrop-blur-lg border-2 border-orange-500 p-8 rounded-2xl shadow-[0_0_30px_rgba(249,115,22,0.5)] max-w-md w-full text-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 text-orange-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <h1 class="text-3xl font-extrabold text-orange-500 mb-2">ĐÃ HẾT LƯỢT!</h1>
-        <p class="text-gray-300 mb-4">Bạn đã đạt giới hạn lấy <b class="text-white">4 Key / Ngày</b>.</p>
-        <p class="text-yellow-400 font-bold mb-6 text-sm">Vui lòng quay lại vào ngày mai để tiếp tục nhận Key!</p>
+    <!-- LOADING -->
+
+    <div
+        id="loadingBox"
+        class="hidden"
+    >
+
+        <div class="loading-title">
+            ⚡ Đang tạo Key...
+        </div>
+
+        <div class="progress">
+
+            <div
+                id="progressBar"
+                class="progress-bar"
+            ></div>
+
+        </div>
+
+        <div
+            id="percent"
+            class="percent"
+        >
+            0%
+        </div>
+
+        <div
+            id="loadingStatus"
+            class="status"
+        >
+            Vui lòng chờ...
+        </div>
+
     </div>
 
-    <!-- 3. KHU VỰC TRẢ LỜI CÂU HỎI (Trang 1) -->
-    <div id="quizContainer" class="hidden bg-gray-900/80 backdrop-blur-lg border border-gray-700 p-8 rounded-2xl shadow-2xl max-w-lg w-full">
-        <div class="text-center mb-6">
-            <h1 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500">
-                BƯỚC 1: XÁC MINH NGƯỜI DÙNG
-            </h1>
-            <p class="text-gray-400 mt-2 text-sm">Trả lời đúng 11 câu hỏi dưới đây để mở khóa link nhận Key.</p>
+    <!-- RESULT -->
+
+    <div
+        id="resultBox"
+        class="hidden"
+    >
+
+        <div class="loading-title">
+            ✅ Tạo Key thành công
         </div>
 
-        <div id="questionsList" class="space-y-4 max-h-80 overflow-y-auto custom-scrollbar pr-2 mb-6">
-            <!-- Danh sách câu hỏi render động qua JS -->
+        <div
+            id="key"
+            class="key-box"
+        >
         </div>
 
-        <div id="quizError" class="hidden text-red-400 text-sm text-center mb-4 font-semibold">
-            ❌ Bạn trả lời sai hoặc chưa điền đủ. Vui lòng kiểm tra lại!
-        </div>
-
-        <button onclick="checkAnswers()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3 px-4 rounded-lg transition duration-200 shadow-lg shadow-blue-500/30">
-            XÁC NHẬN & MỞ KHÓA LINK NHẬN KEY
+        <button
+            class="copy"
+            onclick="copyKey()"
+        >
+            📋 Sao chép Key
         </button>
-    </div>
 
-    <!-- 4. KHU VỰC LẤY KEY (Trang 2 - Chỉ hiển thị khi hợp lệ) -->
-    <div id="mainKeyContainer" class="hidden bg-gray-900/80 backdrop-blur-lg border border-gray-700 p-8 rounded-2xl shadow-2xl max-w-md w-full text-center">
-        <div class="mb-6">
-            <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
-                GET KEY TỰ ĐỘNG
-            </h1>
-            <p class="text-gray-400 mt-2 text-sm">Xác minh thành công! Đang cấp phát Key...</p>
+        <div
+            id="copyStatus"
+            class="status"
+        ></div>
+
+        <div class="status">
+            Key có hiệu lực trong 10 phút.
         </div>
 
-        <div class="space-y-6">
-            <div id="loadingArea" class="flex flex-col items-center justify-center py-4">
-                <div class="loader mb-4"></div>
-                <p id="loadingText" class="text-blue-400 font-semibold animate-pulse">Đang xin cấp Key từ hệ thống...</p>
-            </div>
-
-            <div id="keyContainer" class="hidden flex flex-col space-y-4">
-                <div class="bg-blue-900/30 border border-blue-500/50 p-3 rounded-lg text-sm text-blue-200">
-                    <p>🎉 Nhập Key này vào Bot để nhận <b>100 điểm</b>!</p>
-                    <p class="text-xs text-gray-400 mt-1">Lưu ý: Tải Client sẽ tốn 30 điểm.</p>
-                </div>
-
-                <div class="flex items-center space-x-2">
-                    <input type="text" id="keyDisplay" readonly class="w-full bg-gray-800 border border-gray-600 rounded-lg py-3 px-4 text-center font-mono text-green-400 text-xl font-bold outline-none cursor-text">
-                    <button onclick="copyKey()" class="bg-gray-700 hover:bg-gray-600 p-3 rounded-lg transition duration-200" title="Sao chép">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                        </svg>
-                    </button>
-                </div>
-                <p id="copyMsg" class="text-green-500 text-sm font-semibold h-4 opacity-0 transition-opacity duration-300">Đã sao chép vào khay nhớ tạm!</p>
-                
-                <div class="bg-red-900/30 border border-red-500/50 p-3 rounded-lg text-sm">
-                    <p class="text-red-400 font-bold">⚠️ CẢNH BÁO QUAN TRỌNG</p>
-                    <ul class="text-left text-xs text-gray-300 mt-1 list-disc list-inside">
-                        <li>Key này chỉ có <b>hiệu lực trong 10 phút</b>.</li>
-                        <li>Chỉ dùng được <b>1 lần duy nhất</b>.</li>
-                        <li>F5 tải lại trang sẽ <b>giữ nguyên mã Key hiện tại</b>.</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <script>
-        // Có hỗ trợ nhiều cách trả lời (có dấu/không dấu) để chống ức chế cho người dùng
-        const quizData = [
-            { question: "Câu 1: 12 x 12 bằng bao nhiêu?", answer: ["144"] },
-            { question: "Câu 2: H2O là công thức hóa học của chất nào?", answer: ["nước", "nuoc"] },
-            { question: "Câu 3: Hành tinh lớn nhất trong hệ mặt trời?", answer: ["sao mộc", "mộc tinh", "sao moc"] },
-            { question: "Câu 4: 1 Megabyte (MB) bằng bao nhiêu Kilobyte (KB)?", answer: ["1024", "1000"] },
-            { question: "Câu 5: Loài động vật lớn nhất Trái Đất hiện nay?", answer: ["cá voi xanh", "cá voi", "ca voi", "ca voi xanh"] },
-            { question: "Câu 6: Tam giác có 3 góc bằng nhau gọi là gì?", answer: ["tam giác đều", "đều", "tam giac deu"] },
-            { question: "Câu 7: Tác giả của tác phẩm Truyện Kiều là ai?", answer: ["nguyễn du", "nguyen du"] },
-            { question: "Câu 8: 50% của 200 là bao nhiêu?", answer: ["100"] },
-            { question: "Câu 9: Vị vua đầu tiên của triều đại nhà Lý là ai?", answer: ["lý thái tổ", "lý công uẩn", "ly thai to", "ly cong uan"] },
-            { question: "Câu 10: Hình lục giác có bao nhiêu cạnh?", answer: ["6", "sáu", "sau"] },
-            { question: "Câu 11: Thủ đô của nước Úc (Australia) là gì?", answer: ["canberra"] }
-        ];
+</div>
 
-        window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const tokenFromUrl = urlParams.get('auth');
-            const tokenFromLocal = localStorage.getItem('grx_secret_auth');
-            const tokenTime = localStorage.getItem('grx_auth_time');
+<script>
 
-            // 1. Trường hợp truy cập link có đính kèm xác minh ?auth=
-            if (tokenFromUrl) {
-                const now = Date.now();
-                const fiveMinutes = 5 * 60 * 1000; // Khóa bảo vệ hợp lệ 5 phút
+/*
+    QUAN TRỌNG:
+    Sau khi deploy API lên Render,
+    thay URL bên dưới bằng URL Render của bạn.
 
-                // So khớp Token ở URL với Token ẩn trong máy & kiểm tra thời gian
-                if (tokenFromUrl === tokenFromLocal && tokenTime && (now - tokenTime < fiveMinutes)) {
-                    document.getElementById('mainKeyContainer').classList.remove('hidden');
-                    startKeyProcess();
-                } else {
-                    // Trái phép: Nếu là người lạ copy link hoặc tự gõ link
-                    document.getElementById('unauthorizedContainer').classList.remove('hidden');
-                    localStorage.removeItem('grx_secret_auth'); // Tiêu hủy dấu vết
-                }
-            } 
-            // 2. Trường hợp vào trang chủ
-            else {
-                // Kiểm tra giới hạn 4 lần / ngày
-                const today = new Date().toLocaleDateString('vi-VN');
-                let dateSaved = localStorage.getItem('grx_daily_date');
-                let count = parseInt(localStorage.getItem('grx_daily_count') || '0');
+    Ví dụ:
 
-                // Sang ngày mới -> Reset lại đếm
-                if (dateSaved !== today) {
-                    localStorage.setItem('grx_daily_date', today);
-                    localStorage.setItem('grx_daily_count', '0');
-                    count = 0;
-                }
+    https://grx-key-api.onrender.com
+*/
 
-                if (count >= 4) {
-                    // Nếu đã lấy 4 lần -> Khóa không cho làm quiz nữa
-                    document.getElementById('limitContainer').classList.remove('hidden');
-                } else {
-                    // Hợp lệ -> Hiển thị bài quiz
-                    document.getElementById('quizContainer').classList.remove('hidden');
-                    renderQuestions();
-                }
+const API_URL =
+    "https://YOUR-API-NAME.onrender.com";
+
+
+/* =========================
+   CHECK ANSWER
+========================= */
+
+function checkAnswer() {
+
+    const answer =
+        document
+            .getElementById("answer")
+            .value
+            .trim();
+
+    const status =
+        document
+            .getElementById(
+                "questionStatus"
+            );
+
+    if (answer !== "2") {
+
+        status.textContent =
+            "❌ Đáp án chưa đúng.";
+
+        status.className =
+            "status error";
+
+        return;
+    }
+
+    status.textContent =
+        "";
+
+    document
+        .getElementById(
+            "questionBox"
+        )
+        .classList.add("hidden");
+
+    document
+        .getElementById(
+            "loadingBox"
+        )
+        .classList.remove("hidden");
+
+    startLoading();
+}
+
+
+/* =========================
+   60 SECOND LOADING
+========================= */
+
+function startLoading() {
+
+    let seconds = 0;
+
+    const total = 60;
+
+    const bar =
+        document.getElementById(
+            "progressBar"
+        );
+
+    const percent =
+        document.getElementById(
+            "percent"
+        );
+
+    const status =
+        document.getElementById(
+            "loadingStatus"
+        );
+
+    const timer =
+        setInterval(async () => {
+
+            seconds++;
+
+            const value =
+                Math.floor(
+                    seconds / total * 100
+                );
+
+            bar.style.width =
+                value + "%";
+
+            percent.textContent =
+                value + "%";
+
+            status.textContent =
+                `Đang xử lý... ${seconds}/${total} giây`;
+
+            if (seconds >= total) {
+
+                clearInterval(timer);
+
+                status.textContent =
+                    "🔑 Đang liên hệ máy chủ Key...";
+
+                await getKey();
             }
-        };
 
-        function renderQuestions() {
-            const list = document.getElementById('questionsList');
-            list.innerHTML = '';
-            quizData.forEach((q, index) => {
-                list.innerHTML += `
-                    <div class="bg-gray-800 p-3 rounded-lg border border-gray-700">
-                        <label class="block text-sm font-semibold text-gray-200 mb-1">${q.question}</label>
-                        <input type="text" id="ans_${index}" class="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500" placeholder="Nhập câu trả lời...">
-                    </div>
-                `;
-            });
+        }, 1000);
+}
+
+
+/* =========================
+   GET KEY
+========================= */
+
+async function getKey() {
+
+    try {
+
+        const response =
+            await fetch(
+                API_URL +
+                "/api/get-key"
+            );
+
+        if (!response.ok) {
+
+            throw new Error(
+                "HTTP " +
+                response.status
+            );
         }
 
-        function checkAnswers() {
-            let allCorrect = true;
-            for (let i = 0; i < quizData.length; i++) {
-                // Tự động bỏ khoảng trắng thừa và in thường để dễ so khớp
-                const userAnswer = document.getElementById(`ans_${i}`).value.trim().toLowerCase();
-                
-                // Nếu mảng đáp án không chứa câu trả lời của người dùng -> Sai
-                if (!quizData[i].answer.includes(userAnswer)) {
-                    allCorrect = false;
-                    break;
-                }
-            }
+        const data =
+            await response.json();
 
-            if (allCorrect) {
-                // -- CỘNG 1 LƯỢT VÀO GIỚI HẠN NGÀY --
-                let count = parseInt(localStorage.getItem('grx_daily_count') || '0');
-                localStorage.setItem('grx_daily_count', (count + 1).toString());
+        if (!data.key) {
 
-                // -- CẤP TOKEN VƯỢT RÀO BẢO MẬT --
-                const randomToken = "AUTH_" + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
-                
-                localStorage.setItem('grx_secret_auth', randomToken);
-                localStorage.setItem('grx_auth_time', Date.now());
-
-                // Chuyển hướng URL sang link nhận Key
-                window.location.href = window.location.pathname + "?auth=" + randomToken;
-            } else {
-                const errorMsg = document.getElementById('quizError');
-                errorMsg.classList.remove('hidden');
-                setTimeout(() => errorMsg.classList.add('hidden'), 3000);
-            }
+            throw new Error(
+                "API không trả về Key"
+            );
         }
 
-        async function startKeyProcess() {
-            const container = document.getElementById('keyContainer');
-            const display = document.getElementById('keyDisplay');
-            const loadingArea = document.getElementById('loadingArea');
+        document
+            .getElementById(
+                "loadingBox"
+            )
+            .classList.add(
+                "hidden"
+            );
 
-            // --- TÍNH NĂNG MỚI: DỮ NGUYÊN KEY KHI RELOAD ---
-            const savedKey = localStorage.getItem('grx_current_key');
-            const savedKeyTime = localStorage.getItem('grx_current_key_time');
-            const tenMins = 10 * 60 * 1000;
+        document
+            .getElementById(
+                "resultBox"
+            )
+            .classList.remove(
+                "hidden"
+            );
 
-            // Nếu Key cũ vẫn còn sống (< 10 phút), hiển thị luôn, không xin Bot nữa
-            if (savedKey && savedKeyTime && (Date.now() - savedKeyTime < tenMins)) {
-                setTimeout(() => {
-                    display.value = savedKey;
-                    loadingArea.classList.add('hidden');
-                    container.classList.remove('hidden');
-                }, 1000); // 1 giây giả vờ loading
-                return; 
-            }
+        document
+            .getElementById(
+                "key"
+            )
+            .textContent =
+                data.key;
 
-            // Nếu không có Key cũ hoặc đã quá hạn -> Xin cấp Key mới
-            try {
-                // Đang gọi về Local Bot (Thay đổi URL nếu up lên server thật)
-                const response = await fetch('http://localhost:3000/api/get-key');
-                
-                if (!response.ok) throw new Error("Bot không phản hồi");
-                
-                const data = await response.json();
-                const newKey = data.key;
-                
-                // Lưu lại bộ nhớ máy để nếu F5 thì lấy ra xài lại
-                localStorage.setItem('grx_current_key', newKey);
-                localStorage.setItem('grx_current_key_time', Date.now());
+    } catch (error) {
 
-                setTimeout(() => {
-                    display.value = newKey;
-                    loadingArea.classList.add('hidden');
-                    container.classList.remove('hidden');
-                }, 1200);
+        console.error(error);
 
-            } catch (error) {
-                console.error("Lỗi:", error);
-                loadingArea.innerHTML = `<p class="text-red-500 font-bold">❌ Lỗi: Không thể kết nối tới Bot Discord!</p><p class="text-sm text-gray-400 mt-2">Hãy chắc chắn Bot đang bật và API hoạt động (Đang gọi tới localhost:3000).</p>`;
-            }
-        }
+        const status =
+            document.getElementById(
+                "loadingStatus"
+            );
 
-        function copyKey() {
-            const keyText = document.getElementById('keyDisplay');
-            const copyMsg = document.getElementById('copyMsg');
-            
-            keyText.select();
-            keyText.setSelectionRange(0, 99999); 
-            document.execCommand("copy");
+        status.textContent =
+            "❌ Không thể kết nối API.";
 
-            copyMsg.classList.remove('opacity-0');
-            setTimeout(() => {
-                copyMsg.classList.add('opacity-0');
-            }, 2000);
-        }
-    </script>
+        status.className =
+            "status error";
+
+    }
+}
+
+
+/* =========================
+   COPY
+========================= */
+
+async function copyKey() {
+
+    const key =
+        document
+            .getElementById(
+                "key"
+            )
+            .textContent;
+
+    const status =
+        document.getElementById(
+            "copyStatus"
+        );
+
+    try {
+
+        await navigator.clipboard.writeText(
+            key
+        );
+
+        status.textContent =
+            "✅ Đã sao chép Key!";
+
+        status.className =
+            "status success";
+
+    } catch {
+
+        status.textContent =
+            "❌ Không thể sao chép.";
+
+        status.className =
+            "status error";
+    }
+}
+
+</script>
+
 </body>
 </html>
