@@ -1,1932 +1,692 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>GRX Key System</title>
-
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-        rel="stylesheet"
-    >
-
-    <style>
-
-        * {
-            box-sizing: border-box;
-        }
-
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            min-height: 100%;
-        }
-
-        body {
-            min-height: 100vh;
-            font-family: "Inter", sans-serif;
-            color: #fff;
-            overflow-x: hidden;
-
-            background:
-                radial-gradient(
-                    circle at 15% 20%,
-                    rgba(99,102,241,.22),
-                    transparent 30%
-                ),
-                radial-gradient(
-                    circle at 85% 80%,
-                    rgba(168,85,247,.20),
-                    transparent 30%
-                ),
-                linear-gradient(
-                    135deg,
-                    #020617,
-                    #0f172a,
-                    #111827
-                );
-        }
-
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-
-            background:
-                linear-gradient(
-                    120deg,
-                    transparent,
-                    rgba(255,255,255,.025),
-                    transparent
-                );
-
-            animation: backgroundMove 9s linear infinite;
-        }
-
-        @keyframes backgroundMove {
-
-            0% {
-                transform: translateX(-100%);
-            }
-
-            100% {
-                transform: translateX(100%);
-            }
-
-        }
-
-        .wrapper {
-            min-height: 100vh;
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            padding: 20px;
-        }
-
-        .card-border {
-            width: 100%;
-            max-width: 620px;
-
-            padding: 2px;
-
-            border-radius: 28px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(99,102,241,.85),
-                    rgba(168,85,247,.55),
-                    rgba(59,130,246,.75)
-                );
-
-            box-shadow:
-                0 0 45px rgba(99,102,241,.16),
-                0 0 100px rgba(168,85,247,.08);
-        }
-
-        .card {
-            border-radius: 26px;
-
-            padding: 34px;
-
-            background:
-                rgba(2,6,23,.96);
-
-            backdrop-filter: blur(25px);
-        }
-
-        .logo {
-            width: 78px;
-            height: 78px;
-
-            margin: 0 auto 20px;
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            border-radius: 22px;
-
-            font-size: 25px;
-            font-weight: 900;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #6366f1,
-                    #8b5cf6,
-                    #3b82f6
-                );
-
-            box-shadow:
-                0 0 35px rgba(99,102,241,.40);
-
-            animation: logoFloat 3s ease-in-out infinite;
-        }
-
-        @keyframes logoFloat {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-7px);
-            }
-
-        }
-
-        .title {
-            text-align: center;
-
-            font-size: 27px;
-            font-weight: 900;
-
-            letter-spacing: -.6px;
-        }
-
-        .subtitle {
-            margin-top: 8px;
-
-            text-align: center;
-
-            color: #94a3b8;
-
-            font-size: 13px;
-            line-height: 1.7;
-        }
-
-        .status-wrap {
-            display: flex;
-            justify-content: center;
-        }
-
-        .status {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-
-            margin-top: 18px;
-            padding: 7px 13px;
-
-            border-radius: 999px;
-
-            color: #86efac;
-
-            background:
-                rgba(34,197,94,.08);
-
-            border:
-                1px solid rgba(34,197,94,.18);
-
-            font-size: 11px;
-            font-weight: 800;
-        }
-
-        .status-dot {
-            width: 7px;
-            height: 7px;
-
-            border-radius: 50%;
-
-            background: #22c55e;
-
-            box-shadow:
-                0 0 10px #22c55e;
-
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: .3;
-            }
-
-        }
-
-        .counter {
-            margin-top: 15px;
-
-            text-align: center;
-
-            color: #64748b;
-
-            font-size: 11px;
-        }
-
-        .section {
-            margin-top: 28px;
-        }
-
-        .section-title {
-            margin-bottom: 10px;
-
-            color: #e2e8f0;
-
-            font-size: 13px;
-            font-weight: 800;
-        }
-
-        .question-box {
-            padding: 21px;
-
-            border-radius: 18px;
-
-            background:
-                rgba(15,23,42,.72);
-
-            border:
-                1px solid rgba(148,163,184,.11);
-        }
-
-        .question-number {
-            margin-bottom: 8px;
-
-            color: #818cf8;
-
-            font-size: 10px;
-            font-weight: 900;
-
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .question-text {
-            margin-bottom: 17px;
-
-            color: #f8fafc;
-
-            font-size: 18px;
-            font-weight: 800;
-        }
-
-        .answer-input {
-            width: 100%;
-
-            padding: 14px 15px;
-
-            border-radius: 13px;
-
-            outline: none;
-
-            color: white;
-
-            background:
-                rgba(2,6,23,.90);
-
-            border:
-                1px solid rgba(148,163,184,.16);
-
-            transition: .2s;
-        }
-
-        .answer-input:focus {
-            border-color: #6366f1;
-
-            box-shadow:
-                0 0 0 4px rgba(99,102,241,.10);
-        }
-
-        .button {
-            width: 100%;
-
-            margin-top: 17px;
-
-            padding: 15px;
-
-            border: 0;
-            border-radius: 14px;
-
-            color: white;
-
-            cursor: pointer;
-
-            font-size: 13px;
-            font-weight: 900;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #6366f1,
-                    #7c3aed
-                );
-
-            box-shadow:
-                0 10px 30px rgba(99,102,241,.22);
-
-            transition: .2s;
-        }
-
-        .button:hover {
-            transform: translateY(-2px);
-        }
-
-        .button:disabled {
-            opacity: .5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .error {
-            display: none;
-
-            margin-top: 12px;
-
-            padding: 12px 14px;
-
-            border-radius: 12px;
-
-            color: #fca5a5;
-
-            background:
-                rgba(239,68,68,.08);
-
-            border:
-                1px solid rgba(239,68,68,.17);
-
-            font-size: 12px;
-            line-height: 1.5;
-        }
-
-        .info {
-            margin-top: 17px;
-
-            padding: 13px;
-
-            border-radius: 13px;
-
-            color: #94a3b8;
-
-            background:
-                rgba(15,23,42,.55);
-
-            border:
-                1px solid rgba(148,163,184,.08);
-
-            font-size: 11px;
-            line-height: 1.7;
-        }
-
-        /* =========================
-           LOADING
-        ========================= */
-
-        #loadingScreen {
-            display: none;
-
-            text-align: center;
-        }
-
-        .circle {
-            position: relative;
-
-            width: 180px;
-            height: 180px;
-
-            margin: 5px auto 24px;
-        }
-
-        .circle svg {
-            width: 180px;
-            height: 180px;
-
-            transform: rotate(-90deg);
-        }
-
-        .track {
-            fill: none;
-
-            stroke:
-                rgba(148,163,184,.10);
-
-            stroke-width: 9;
-        }
-
-        .progress {
-            fill: none;
-
-            stroke: #818cf8;
-
-            stroke-width: 9;
-
-            stroke-linecap: round;
-
-            stroke-dasharray: 471;
-
-            stroke-dashoffset: 471;
-
-            filter:
-                drop-shadow(
-                    0 0 8px
-                    rgba(129,140,248,.8)
-                );
-
-            transition:
-                stroke-dashoffset .1s linear;
-        }
-
-        .circle-center {
-            position: absolute;
-
-            inset: 0;
-
-            display: flex;
-            flex-direction: column;
-
-            justify-content: center;
-            align-items: center;
-        }
-
-        #percent {
-            font-size: 31px;
-            font-weight: 900;
-        }
-
-        .percent-small {
-            margin-top: 2px;
-
-            color: #94a3b8;
-
-            font-size: 10px;
-        }
-
-        .loading-title {
-            font-size: 20px;
-            font-weight: 900;
-        }
-
-        .loading-text {
-            max-width: 450px;
-
-            margin: 8px auto 0;
-
-            color: #94a3b8;
-
-            font-size: 12px;
-            line-height: 1.7;
-        }
-
-        .loading-status {
-            margin-top: 20px;
-
-            padding: 12px;
-
-            border-radius: 12px;
-
-            color: #c7d2fe;
-
-            background:
-                rgba(99,102,241,.08);
-
-            border:
-                1px solid rgba(99,102,241,.15);
-
-            font-size: 11px;
-        }
-
-        /* =========================
-           KEY
-        ========================= */
-
-        #keyContainer {
-            display: none;
-        }
-
-        .key-box {
-            padding: 22px;
-
-            border-radius: 18px;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    rgba(34,197,94,.08),
-                    rgba(15,23,42,.75)
-                );
-
-            border:
-                1px solid rgba(34,197,94,.18);
-        }
-
-        .success-icon {
-            width: 60px;
-            height: 60px;
-
-            margin: 0 auto 15px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 18px;
-
-            color: #86efac;
-
-            background:
-                rgba(34,197,94,.10);
-
-            font-size: 28px;
-            font-weight: 900;
-        }
-
-        .key-title {
-            text-align: center;
-
-            font-size: 21px;
-            font-weight: 900;
-        }
-
-        .key-description {
-            margin-top: 7px;
-
-            text-align: center;
-
-            color: #94a3b8;
-
-            font-size: 12px;
-            line-height: 1.7;
-        }
-
-        .key-row {
-            display: flex;
-            gap: 8px;
-
-            margin-top: 20px;
-        }
-
-        .key {
-            flex: 1;
-
-            min-width: 0;
-
-            padding: 14px;
-
-            border-radius: 12px;
-
-            color: #a5b4fc;
-
-            background:
-                rgba(2,6,23,.9);
-
-            border:
-                1px solid rgba(99,102,241,.18);
-
-            font-family: monospace;
-
-            font-size: 13px;
-            font-weight: 800;
-
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-        }
-
-        .copy {
-            padding: 0 17px;
-
-            border: 0;
-            border-radius: 12px;
-
-            color: white;
-
-            background: #4f46e5;
-
-            cursor: pointer;
-
-            font-size: 11px;
-            font-weight: 900;
-        }
-
-        .expire {
-            margin-top: 12px;
-
-            text-align: center;
-
-            color: #64748b;
-
-            font-size: 10px;
-        }
-
-        .footer {
-            margin-top: 24px;
-
-            text-align: center;
-
-            color: #475569;
-
-            font-size: 9px;
-        }
-
-        /* =========================
-           UNAUTHORIZED
-        ========================= */
-
-        #unauthorized {
-            display: none;
-
-            text-align: center;
-        }
-
-        .lock {
-            width: 75px;
-            height: 75px;
-
-            margin: 0 auto 18px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 22px;
-
-            background:
-                rgba(239,68,68,.08);
-
-            border:
-                1px solid rgba(239,68,68,.18);
-
-            font-size: 31px;
-        }
-
-        @media(max-width:600px) {
-
-            .wrapper {
-                padding: 10px;
-            }
-
-            .card {
-                padding: 22px 17px;
-            }
-
-            .title {
-                font-size: 23px;
-            }
-
-            .circle,
-            .circle svg {
-                width: 155px;
-                height: 155px;
-            }
-
-        }
-
-    </style>
-</head>
-
-<body>
-
-<div class="wrapper">
-
-    <div class="card-border">
-
-        <div class="card">
-
-            <!-- =========================
-                 UNAUTHORIZED
-            ========================== -->
-
-            <div id="unauthorized">
-
-                <div class="lock">
-                    🔒
-                </div>
-
-                <div class="title">
-                    TRUY CẬP KHÔNG HỢP LỆ
-                </div>
-
-                <div class="subtitle">
-                    Liên kết xác thực không hợp lệ
-                    hoặc phiên xác thực đã hết hạn.
-                </div>
-
-            </div>
-
-
-            <!-- =========================
-                 MAIN
-            ========================== -->
-
-            <div id="main">
-
-                <div class="logo">
-                    GRX
-                </div>
-
-                <div class="title">
-                    HỆ THỐNG LẤY KEY
-                </div>
-
-                <div class="subtitle">
-                    Hoàn thành xác minh để nhận
-                    Key từ hệ thống GRX.
-                </div>
-
-                <div class="status-wrap">
-
-                    <div class="status">
-
-                        <span class="status-dot"></span>
-
-                        HỆ THỐNG ĐANG HOẠT ĐỘNG
-
-                    </div>
-
-                </div>
-
-
-                <div class="counter">
-
-                    Lượt lấy Key hôm nay:
-                    <b id="dailyCount">0</b>/4
-
-                </div>
-
-
-                <!-- =========================
-                     QUIZ
-                ========================== -->
-
-                <div
-                    id="quiz"
-                    class="section"
-                >
-
-                    <div class="section-title">
-                        BƯỚC 1 — XÁC MINH NGƯỜI DÙNG
-                    </div>
-
-                    <div class="question-box">
-
-                        <div class="question-number">
-                            CÂU HỎI 1
-                        </div>
-
-                        <div class="question-text">
-                            1 + 1 bằng bao nhiêu?
-                        </div>
-
-                        <input
-                            id="answer"
-                            class="answer-input"
-                            type="text"
-                            placeholder="Nhập câu trả lời..."
-                            autocomplete="off"
-                            onkeydown="enterSubmit(event)"
-                        >
-
-                    </div>
-
-                    <div
-                        id="error"
-                        class="error"
-                    ></div>
-
-                    <button
-                        id="verifyButton"
-                        class="button"
-                        onclick="checkAnswer()"
-                    >
-                        🔐 XÁC NHẬN
-                    </button>
-
-                    <div class="info">
-
-                        💡 Sau khi trả lời đúng,
-                        hệ thống sẽ thực hiện quá trình
-                        xác minh trong khoảng <b>60 giây</b>.
-
-                    </div>
-
-                </div>
-
-
-                <!-- =========================
-                     LOADING
-                ========================== -->
-
-                <div
-                    id="loadingScreen"
-                    class="section"
-                >
-
-                    <div class="circle">
-
-                        <svg viewBox="0 0 170 170">
-
-                            <circle
-                                class="track"
-                                cx="85"
-                                cy="85"
-                                r="75"
-                            />
-
-                            <circle
-                                id="progress"
-                                class="progress"
-                                cx="85"
-                                cy="85"
-                                r="75"
-                            />
-
-                        </svg>
-
-                        <div class="circle-center">
-
-                            <div id="percent">
-                                0%
-                            </div>
-
-                            <div class="percent-small">
-                                VERIFYING
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="loading-title">
-                        ĐANG XÁC MINH...
-                    </div>
-
-                    <div class="loading-text">
-
-                        Không đóng hoặc tải lại trang.
-                        Hệ thống đang xử lý phiên xác minh
-                        của bạn.
-
-                    </div>
-
-                    <div
-                        id="loadingStatus"
-                        class="loading-status"
-                    >
-                        🔄 Đang khởi tạo...
-
-                    </div>
-
-                </div>
-
-
-                <!-- =========================
-                     KEY
-                ========================== -->
-
-                <div
-                    id="keyContainer"
-                    class="section"
-                >
-
-                    <div class="key-box">
-
-                        <div class="success-icon">
-                            ✓
-                        </div>
-
-                        <div class="key-title">
-                            XÁC MINH THÀNH CÔNG
-                        </div>
-
-                        <div class="key-description">
-
-                            Key đã được cấp thành công.
-                            Hãy sao chép Key bên dưới.
-
-                        </div>
-
-
-                        <div class="key-row">
-
-                            <div
-                                id="keyValue"
-                                class="key"
-                            >
-                                Đang tải...
-                            </div>
-
-                            <button
-                                id="copyButton"
-                                class="copy"
-                                onclick="copyKey()"
-                            >
-                                COPY
-                            </button>
-
-                        </div>
-
-
-                        <div class="expire">
-
-                            ⏱ Key hết hạn sau 10 phút
-                            kể từ lúc API cấp Key.
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <div class="footer">
-                    GRX KEY SYSTEM • SECURE VERIFICATION
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<script>
-
-/*
-============================================================
-    CẤU HÌNH API
-============================================================
-
-    Ví dụ API của bạn:
-
-    https://grx-api.onrender.com
-
-    thì sửa thành:
-
-    const API_BASE_URL =
-        "https://grx-api.onrender.com";
-
-============================================================
-*/
-
-const API_BASE_URL =
-    "https://YOUR-API-DOMAIN.com";
-
-
-/*
-============================================================
-    CONFIG
-============================================================
-*/
-
-const MAX_DAILY_KEYS = 4;
-
-const KEY_CACHE_TIME =
-    10 * 60 * 1000;
-
-const VERIFICATION_TIME =
-    60 * 1000;
-
-
-/*
-============================================================
-    ELEMENTS
-============================================================
-*/
-
-const main =
-    document.getElementById("main");
-
-const unauthorized =
-    document.getElementById("unauthorized");
-
-const quiz =
-    document.getElementById("quiz");
-
-const answer =
-    document.getElementById("answer");
-
-const errorBox =
-    document.getElementById("error");
-
-const verifyButton =
-    document.getElementById("verifyButton");
-
-const loadingScreen =
-    document.getElementById("loadingScreen");
-
-const progress =
-    document.getElementById("progress");
-
-const percent =
-    document.getElementById("percent");
-
-const loadingStatus =
-    document.getElementById("loadingStatus");
-
-const keyContainer =
-    document.getElementById("keyContainer");
-
-const keyValue =
-    document.getElementById("keyValue");
-
-const copyButton =
-    document.getElementById("copyButton");
-
-const dailyCount =
-    document.getElementById("dailyCount");
-
-
-/*
-============================================================
-    DATE
-============================================================
-*/
-
-function getToday() {
-
-    const date = new Date();
-
-    return [
-        date.getFullYear(),
-        String(date.getMonth() + 1).padStart(2, "0"),
-        String(date.getDate()).padStart(2, "0")
-    ].join("-");
-
+require("dotenv").config();
+
+const {
+    Client,
+    GatewayIntentBits,
+    SlashCommandBuilder,
+    REST,
+    Routes,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    EmbedBuilder,
+    MessageFlags
+} = require("discord.js");
+
+const express = require("express");
+const cors = require("cors");
+
+const app = express();
+
+/* =========================
+   API CONFIG
+========================= */
+
+app.use(cors());
+app.use(express.json());
+
+const PORT = process.env.PORT || 3000;
+const HOST = "0.0.0.0";
+
+/* =========================
+   KEY SYSTEM
+========================= */
+
+const validKeys = new Map();
+
+/* =========================
+   USER POINTS
+========================= */
+
+const userPoints = new Map();
+
+/* =========================
+   HEALTH CHECK
+========================= */
+
+app.get("/", (req, res) => {
+    res.json({
+        status: "online",
+        service: "GRX Key System",
+        api: true
+    });
+});
+
+/* =========================
+   GET KEY
+========================= */
+
+app.get("/api/get-key", (req, res) => {
+    try {
+        const randomNumbers = Math.floor(
+            10000000 + Math.random() * 90000000
+        );
+
+        const newKey = `GRX=${randomNumbers}`;
+
+        validKeys.set(newKey, Date.now());
+
+        console.log(`🔑 API cấp Key: ${newKey}`);
+
+        res.status(200).json({
+            key: newKey
+        });
+
+    } catch (error) {
+        console.error("❌ Lỗi tạo Key:", error);
+
+        res.status(500).json({
+            error: "Không thể tạo Key"
+        });
+    }
+});
+
+/* =========================
+   CHECK KEY
+========================= */
+
+app.get("/api/check-key", (req, res) => {
+    const key = req.query.key;
+
+    if (!key) {
+        return res.status(400).json({
+            valid: false,
+            message: "Thiếu Key"
+        });
+    }
+
+    if (!validKeys.has(key)) {
+        return res.json({
+            valid: false,
+            message: "Key không tồn tại hoặc đã được sử dụng"
+        });
+    }
+
+    const createdAt = validKeys.get(key);
+    const expiresIn = 10 * 60 * 1000;
+
+    if (Date.now() - createdAt > expiresIn) {
+        validKeys.delete(key);
+
+        return res.json({
+            valid: false,
+            message: "Key đã hết hạn"
+        });
+    }
+
+    res.json({
+        valid: true,
+        message: "Key hợp lệ"
+    });
+});
+
+/* =========================
+   API ERROR HANDLER
+========================= */
+
+app.use((err, req, res, next) => {
+    console.error("❌ API ERROR:", err);
+
+    res.status(500).json({
+        error: "Internal Server Error"
+    });
+});
+
+/* =========================
+   START SERVER
+========================= */
+
+app.listen(PORT, HOST, () => {
+    console.log(
+        `🌐 API đang chạy tại http://${HOST}:${PORT}`
+    );
+
+    console.log(
+        `🔑 GET KEY: http://localhost:${PORT}/api/get-key`
+    );
+});
+
+/* =========================
+   DISCORD BOT
+========================= */
+
+if (!process.env.TOKEN) {
+    console.log("❌ Không tìm thấy TOKEN trong .env");
+    process.exit(1);
 }
 
+if (!process.env.CLIENT_ID) {
+    console.log("❌ Không tìm thấy CLIENT_ID trong .env");
+    process.exit(1);
+}
 
-/*
-============================================================
-    DAILY DATA
-============================================================
-*/
+const client = new Client({
+    intents: [GatewayIntentBits.Guilds]
+});
 
-function getDailyData() {
+client.on("error", error => {
+    console.error("⚠️ Discord Client Error:", error);
+});
 
-    const today =
-        getToday();
+client.on("warn", message => {
+    console.log(`⚠️ Discord Warning: ${message}`);
+});
 
-    let data = null;
+process.on("unhandledRejection", reason => {
+    console.error("⚠️ Unhandled Promise Rejection:", reason);
+});
+
+process.on("uncaughtException", error => {
+    console.error("⚠️ Uncaught Exception:", error);
+});
+
+/* =========================
+   COMMANDS
+========================= */
+
+const commands = [
+    new SlashCommandBuilder()
+        .setName("link")
+        .setDescription("Lấy danh sách link Client và Script Roblox"),
+
+    new SlashCommandBuilder()
+        .setName("key")
+        .setDescription("Lấy key hệ thống"),
+
+    new SlashCommandBuilder()
+        .setName("nhandiem")
+        .setDescription("Nhập Key để nhận điểm")
+        .addStringOption(option =>
+            option
+                .setName("ma_key")
+                .setDescription("Nhập mã GRX=...")
+                .setRequired(true)
+        )
+].map(command => command.toJSON());
+
+/* =========================
+   REGISTER COMMANDS
+========================= */
+
+async function registerCommands() {
+
+    const rest = new REST({
+        version: "10",
+        timeout: 30000
+    }).setToken(process.env.TOKEN);
 
     try {
 
-        data = JSON.parse(
-            localStorage.getItem(
-                "grx_daily_data"
-            ) || "null"
-        );
-
-    } catch {
-
-        data = null;
-
-    }
-
-    if (
-        !data ||
-        data.date !== today
-    ) {
-
-        data = {
-            date: today,
-            count: 0
-        };
-
-        localStorage.setItem(
-            "grx_daily_data",
-            JSON.stringify(data)
-        );
-
-    }
-
-    return data;
-
-}
-
-
-function updateDailyCount() {
-
-    const data =
-        getDailyData();
-
-    dailyCount.textContent =
-        data.count;
-
-}
-
-
-function increaseDailyCount() {
-
-    const data =
-        getDailyData();
-
-    data.count++;
-
-    localStorage.setItem(
-        "grx_daily_data",
-        JSON.stringify(data)
-    );
-
-    updateDailyCount();
-
-}
-
-
-/*
-============================================================
-    AUTH
-============================================================
-*/
-
-function generateAuth() {
-
-    const random =
-        cryptoRandom();
-
-    const timestamp =
-        Date.now().toString(36);
-
-    return `grx_${random}_${timestamp}`;
-
-}
-
-
-function cryptoRandom() {
-
-    if (
-        window.crypto &&
-        window.crypto.getRandomValues
-    ) {
-
-        const array =
-            new Uint32Array(2);
-
-        window.crypto.getRandomValues(array);
-
-        return (
-            array[0].toString(36) +
-            array[1].toString(36)
-        );
-
-    }
-
-    return Math.random()
-        .toString(36)
-        .substring(2);
-
-}
-
-
-function saveAuth(auth) {
-
-    localStorage.setItem(
-        "grx_secret_auth",
-        auth
-    );
-
-    localStorage.setItem(
-        "grx_auth_time",
-        Date.now().toString()
-    );
-
-}
-
-
-function validateUrlAuth() {
-
-    const params =
-        new URLSearchParams(
-            window.location.search
-        );
-
-    const urlAuth =
-        params.get("auth");
-
-    /*
-        Không có auth:
-        Cho phép trang hoạt động bình thường.
-    */
-
-    if (!urlAuth) {
-
-        return true;
-
-    }
-
-    const savedAuth =
-        localStorage.getItem(
-            "grx_secret_auth"
-        );
-
-    const authTime =
-        parseInt(
-            localStorage.getItem(
-                "grx_auth_time"
-            ) || "0"
-        );
-
-    const valid =
-        savedAuth === urlAuth &&
-        authTime > 0 &&
-        Date.now() - authTime <
-            KEY_CACHE_TIME;
-
-    if (!valid) {
-
-        main.style.display =
-            "none";
-
-        unauthorized.style.display =
-            "block";
-
-        return false;
-
-    }
-
-    return true;
-
-}
-
-
-/*
-============================================================
-    ERROR
-============================================================
-*/
-
-function showError(message) {
-
-    errorBox.textContent =
-        message;
-
-    errorBox.style.display =
-        "block";
-
-}
-
-
-function hideError() {
-
-    errorBox.textContent =
-        "";
-
-    errorBox.style.display =
-        "none";
-
-}
-
-
-/*
-============================================================
-    ENTER
-============================================================
-*/
-
-function enterSubmit(event) {
-
-    if (event.key === "Enter") {
-
-        event.preventDefault();
-
-        checkAnswer();
-
-    }
-
-}
-
-
-/*
-============================================================
-    CHECK ANSWER
-============================================================
-*/
-
-function checkAnswer() {
-
-    hideError();
-
-    const value =
-        answer.value
-            .trim()
-            .toLowerCase();
-
-    if (value !== "2") {
-
-        showError(
-            "❌ Câu trả lời không chính xác."
-        );
-
-        answer.focus();
-
-        return;
-
-    }
-
-
-    /*
-        Kiểm tra giới hạn trước
-        khi bắt đầu loading.
-    */
-
-    const data =
-        getDailyData();
-
-    if (
-        data.count >= MAX_DAILY_KEYS
-    ) {
-
-        showError(
-            "⚠️ Bạn đã sử dụng hết 4 lượt lấy Key hôm nay."
-        );
-
-        return;
-
-    }
-
-
-    answer.disabled =
-        true;
-
-    verifyButton.disabled =
-        true;
-
-    startVerification();
-
-}
-
-
-/*
-============================================================
-    60 SECOND LOADING
-============================================================
-*/
-
-function startVerification() {
-
-    quiz.style.display =
-        "none";
-
-    loadingScreen.style.display =
-        "block";
-
-
-    const circumference =
-        2 * Math.PI * 75;
-
-
-    progress.style.strokeDasharray =
-        circumference;
-
-    progress.style.strokeDashoffset =
-        circumference;
-
-
-    const start =
-        Date.now();
-
-
-    let lastStage =
-        -1;
-
-
-    const timer =
-        setInterval(
-            () => {
-
-                const elapsed =
-                    Date.now() - start;
-
-                const ratio =
-                    Math.min(
-                        elapsed /
-                        VERIFICATION_TIME,
-                        1
-                    );
-
-
-                const value =
-                    Math.floor(
-                        ratio * 100
-                    );
-
-
-                const offset =
-                    circumference -
-                    ratio *
-                    circumference;
-
-
-                progress.style.strokeDashoffset =
-                    offset;
-
-                percent.textContent =
-                    `${value}%`;
-
-
-                /*
-                    Status
-                */
-
-                let stage;
-
-                if (value < 15) {
-
-                    stage = 0;
-
-                } else if (value < 30) {
-
-                    stage = 1;
-
-                } else if (value < 50) {
-
-                    stage = 2;
-
-                } else if (value < 70) {
-
-                    stage = 3;
-
-                } else if (value < 90) {
-
-                    stage = 4;
-
-                } else {
-
-                    stage = 5;
-
+        console.log("⏳ Đang đăng ký Slash Commands...");
+
+        if (process.env.GUILD_ID) {
+
+            await rest.put(
+                Routes.applicationGuildCommands(
+                    process.env.CLIENT_ID,
+                    process.env.GUILD_ID
+                ),
+                {
+                    body: commands
                 }
+            );
 
+            console.log("✅ Đã đăng ký Guild Commands!");
 
-                if (stage !== lastStage) {
+        } else {
 
-                    lastStage =
-                        stage;
-
-
-                    const messages = [
-
-                        "🔄 Đang khởi tạo hệ thống...",
-
-                        "🔐 Đang kiểm tra phiên xác thực...",
-
-                        "🛡️ Đang kiểm tra trạng thái hệ thống...",
-
-                        "⚙️ Đang đồng bộ dữ liệu...",
-
-                        "🔎 Đang hoàn tất xác minh...",
-
-                        "✨ Đang chuẩn bị cấp Key..."
-
-                    ];
-
-
-                    loadingStatus.textContent =
-                        messages[stage];
-
+            await rest.put(
+                Routes.applicationCommands(
+                    process.env.CLIENT_ID
+                ),
+                {
+                    body: commands
                 }
+            );
 
-
-                if (ratio >= 1) {
-
-                    clearInterval(timer);
-
-                    finishVerification();
-
-                }
-
-            },
-            100
-        );
-
-}
-
-
-/*
-============================================================
-    FINISH
-============================================================
-*/
-
-async function finishVerification() {
-
-    percent.textContent =
-        "100%";
-
-    loadingStatus.textContent =
-        "🌐 Đang kết nối API cấp Key...";
-
-
-    try {
-
-        const key =
-            await requestKey();
-
-
-        /*
-            Chỉ khi API thực sự trả Key
-            mới tăng lượt.
-        */
-
-        increaseDailyCount();
-
-
-        /*
-            Lưu auth
-        */
-
-        const auth =
-            generateAuth();
-
-        saveAuth(auth);
-
-
-        /*
-            Lưu Key cache
-        */
-
-        localStorage.setItem(
-            "grx_cached_key",
-            key
-        );
-
-        localStorage.setItem(
-            "grx_cached_key_time",
-            Date.now().toString()
-        );
-
-
-        /*
-            Hiển thị Key
-        */
-
-        showKey(key);
-
+            console.log("✅ Đã đăng ký Global Commands!");
+        }
 
     } catch (error) {
 
         console.error(
-            "GRX API ERROR:",
+            "❌ Lỗi đăng ký Slash Commands:",
             error
         );
-
-
-        loadingStatus.textContent =
-            "❌ Không thể kết nối máy chủ API.";
-
-
-        setTimeout(() => {
-
-            loadingScreen.style.display =
-                "none";
-
-            quiz.style.display =
-                "block";
-
-            verifyButton.disabled =
-                false;
-
-            answer.disabled =
-                false;
-
-            showError(
-                "❌ Không thể lấy Key từ API. Kiểm tra API_BASE_URL hoặc máy chủ Node.js rồi thử lại."
-            );
-
-        }, 1200);
-
     }
-
 }
 
+/* =========================
+   BOT READY
+========================= */
 
-/*
-============================================================
-    REQUEST API
-============================================================
-*/
+client.once("clientReady", async () => {
 
-async function requestKey() {
+    console.log(
+        `✅ Bot Discord đã online: ${client.user.tag}`
+    );
 
-    if (
-        !API_BASE_URL ||
-        API_BASE_URL.includes(
-            "YOUR-API-DOMAIN"
+    await registerCommands();
+});
+
+/* =========================
+   SLEEP
+========================= */
+
+const sleep = ms =>
+    new Promise(resolve => setTimeout(resolve, ms));
+
+/* =========================
+   CLIENT DOWNLOAD
+========================= */
+
+async function processClientDownloadLink(
+    interaction,
+    clientName,
+    downloadUrl
+) {
+
+    const initialEmbed = new EmbedBuilder()
+        .setTitle(
+            `⚡ ĐANG KHỞI TẠO TẢI: ${clientName.toUpperCase()}`
         )
-    ) {
+        .setDescription(
+            "⏳ Đang xử lý yêu cầu của bạn..."
+        )
+        .setColor(0xFEE75C);
 
-        throw new Error(
-            "API_BASE_URL chưa được cấu hình."
+    await interaction.reply({
+        embeds: [initialEmbed],
+        flags: MessageFlags.Ephemeral
+    });
+
+    await sleep(3000);
+
+    const stage2Embed = new EmbedBuilder()
+        .setTitle(
+            `🔐 ĐANG XỬ LÝ: ${clientName.toUpperCase()}`
+        )
+        .setDescription(
+            "Đang chuẩn bị liên kết tải..."
+        )
+        .setColor(0x3498DB);
+
+    await interaction.editReply({
+        embeds: [stage2Embed]
+    });
+
+    await sleep(3000);
+
+    const successEmbed = new EmbedBuilder()
+        .setTitle(
+            `✅ HOÀN TẤT: ${clientName.toUpperCase()}`
+        )
+        .setDescription(
+            `Đã tạo liên kết cho **${clientName}**.\n\n` +
+            "👉 Bấm nút bên dưới để tiếp tục."
+        )
+        .setColor(0x57F287);
+
+    const downloadRow =
+        new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setLabel(`Mở ${clientName}`)
+                .setStyle(ButtonStyle.Link)
+                .setURL(downloadUrl)
         );
 
-    }
+    await interaction.editReply({
+        embeds: [successEmbed],
+        components: [downloadRow]
+    });
+}
 
+/* =========================
+   INTERACTIONS
+========================= */
 
-    const url =
-        `${API_BASE_URL.replace(/\/+$/, "")}/api/get-key`;
+client.on(
+    "interactionCreate",
+    async interaction => {
 
+        try {
 
-    const controller =
-        new AbortController();
+            /* =====================
+               SLASH COMMANDS
+            ===================== */
 
+            if (interaction.isChatInputCommand()) {
 
-    const timeout =
-        setTimeout(
-            () => controller.abort(),
-            15000
-        );
+                /* /LINK */
 
+                if (interaction.commandName === "link") {
 
-    try {
+                    const currentPoints =
+                        userPoints.get(
+                            interaction.user.id
+                        ) || 0;
 
-        const response =
-            await fetch(
-                url,
-                {
-                    method: "GET",
+                    const embed =
+                        new EmbedBuilder()
+                            .setTitle(
+                                "🤖 GRX CLIENT SYSTEM"
+                            )
+                            .setDescription(
+                                `Xin chào **${interaction.user.username}**!\n\n` +
+                                `💰 Điểm hiện tại: **${currentPoints}**\n` +
+                                `💳 Cần **30 điểm** để sử dụng.\n\n` +
+                                "Chọn Client:"
+                            )
+                            .setColor(0x5865F2);
 
-                    headers: {
-                        "Accept":
-                            "application/json"
-                    },
+                    const row =
+                        new ActionRowBuilder()
+                            .addComponents(
 
-                    signal:
-                        controller.signal
+                                new ButtonBuilder()
+                                    .setCustomId(
+                                        "get_xeno"
+                                    )
+                                    .setLabel("Xeno")
+                                    .setStyle(
+                                        ButtonStyle.Primary
+                                    ),
+
+                                new ButtonBuilder()
+                                    .setCustomId(
+                                        "get_velocity"
+                                    )
+                                    .setLabel("Velocity")
+                                    .setStyle(
+                                        ButtonStyle.Success
+                                    ),
+
+                                new ButtonBuilder()
+                                    .setCustomId(
+                                        "get_vortex"
+                                    )
+                                    .setLabel("Vortex")
+                                    .setStyle(
+                                        ButtonStyle.Danger
+                                    )
+                            );
+
+                    return interaction.reply({
+                        embeds: [embed],
+                        components: [row]
+                    });
                 }
+
+                /* /KEY */
+
+                if (interaction.commandName === "key") {
+
+                    const embed =
+                        new EmbedBuilder()
+                            .setTitle(
+                                "🔑 GRX KEY SYSTEM"
+                            )
+                            .setDescription(
+                                "Chọn hệ thống Key:"
+                            )
+                            .setColor(0xFEE75C);
+
+                    const row =
+                        new ActionRowBuilder()
+                            .addComponents(
+                                new ButtonBuilder()
+                                    .setCustomId(
+                                        "key_velocity_btn"
+                                    )
+                                    .setLabel(
+                                        "Lấy Key"
+                                    )
+                                    .setStyle(
+                                        ButtonStyle.Secondary
+                                    )
+                            );
+
+                    return interaction.reply({
+                        embeds: [embed],
+                        components: [row]
+                    });
+                }
+
+                /* /NHANDIEM */
+
+                if (
+                    interaction.commandName ===
+                    "nhandiem"
+                ) {
+
+                    const inputKey =
+                        interaction.options.getString(
+                            "ma_key"
+                        );
+
+                    if (!validKeys.has(inputKey)) {
+
+                        return interaction.reply({
+                            embeds: [
+                                new EmbedBuilder()
+                                    .setTitle(
+                                        "❌ KEY KHÔNG HỢP LỆ"
+                                    )
+                                    .setDescription(
+                                        "Key không tồn tại hoặc đã được sử dụng."
+                                    )
+                                    .setColor(
+                                        0xED4245
+                                    )
+                            ],
+                            flags:
+                                MessageFlags.Ephemeral
+                        });
+                    }
+
+                    const createdAt =
+                        validKeys.get(inputKey);
+
+                    const tenMinutes =
+                        10 * 60 * 1000;
+
+                    if (
+                        Date.now() -
+                        createdAt >
+                        tenMinutes
+                    ) {
+
+                        validKeys.delete(inputKey);
+
+                        return interaction.reply({
+                            embeds: [
+                                new EmbedBuilder()
+                                    .setTitle(
+                                        "⏳ KEY ĐÃ HẾT HẠN"
+                                    )
+                                    .setDescription(
+                                        "Key đã quá 10 phút."
+                                    )
+                                    .setColor(
+                                        0xED4245
+                                    )
+                            ],
+                            flags:
+                                MessageFlags.Ephemeral
+                        });
+                    }
+
+                    /* KEY CHỈ DÙNG 1 LẦN */
+
+                    validKeys.delete(inputKey);
+
+                    const currentPoints =
+                        userPoints.get(
+                            interaction.user.id
+                        ) || 0;
+
+                    const newPoints =
+                        currentPoints + 100;
+
+                    userPoints.set(
+                        interaction.user.id,
+                        newPoints
+                    );
+
+                    return interaction.reply({
+                        embeds: [
+                            new EmbedBuilder()
+                                .setTitle(
+                                    "✅ NHẬN ĐIỂM THÀNH CÔNG"
+                                )
+                                .setDescription(
+                                    `Bạn đã nhận **100 điểm**!\n\n` +
+                                    `💰 Điểm hiện tại: **${newPoints}**`
+                                )
+                                .setColor(
+                                    0x57F287
+                                )
+                        ]
+                    });
+                }
+            }
+
+            /* =====================
+               BUTTONS
+            ===================== */
+
+            if (interaction.isButton()) {
+
+                const {
+                    customId
+                } = interaction;
+
+                /* KEY */
+
+                if (
+                    customId ===
+                    "key_velocity_btn"
+                ) {
+
+                    return interaction.reply({
+                        embeds: [
+                            new EmbedBuilder()
+                                .setTitle(
+                                    "🛠️ HỆ THỐNG"
+                                )
+                                .setDescription(
+                                    "Hệ thống Key đang được bảo trì."
+                                )
+                                .setColor(
+                                    0xED4245
+                                )
+                        ],
+                        flags:
+                            MessageFlags.Ephemeral
+                    });
+                }
+
+                /* CLIENT */
+
+                if (
+                    [
+                        "get_xeno",
+                        "get_velocity",
+                        "get_vortex"
+                    ].includes(customId)
+                ) {
+
+                    const currentPoints =
+                        userPoints.get(
+                            interaction.user.id
+                        ) || 0;
+
+                    if (currentPoints < 30) {
+
+                        return interaction.reply({
+                            embeds: [
+                                new EmbedBuilder()
+                                    .setTitle(
+                                        "💳 KHÔNG ĐỦ ĐIỂM"
+                                    )
+                                    .setDescription(
+                                        `Bạn đang có **${currentPoints} điểm**.\n` +
+                                        "Cần **30 điểm**."
+                                    )
+                                    .setColor(
+                                        0xED4245
+                                    )
+                            ],
+                            flags:
+                                MessageFlags.Ephemeral
+                        });
+                    }
+
+                    userPoints.set(
+                        interaction.user.id,
+                        currentPoints - 30
+                    );
+
+                    if (
+                        customId ===
+                        "get_xeno"
+                    ) {
+
+                        return processClientDownloadLink(
+                            interaction,
+                            "Xeno",
+                            "https://xeno.now/99aca0c5/3734fe27c699/73662e3d135f"
+                        );
+                    }
+
+                    if (
+                        customId ===
+                        "get_velocity"
+                    ) {
+
+                        return processClientDownloadLink(
+                            interaction,
+                            "Velocity",
+                            "https://zufile.com/download/YqCwfcj5Xc"
+                        );
+                    }
+
+                    if (
+                        customId ===
+                        "get_vortex"
+                    ) {
+
+                        return processClientDownloadLink(
+                            interaction,
+                            "Vortex",
+                            "https://zufile.com/download/U8WJgbbWRF"
+                        );
+                    }
+                }
+            }
+
+        } catch (error) {
+
+            console.error(
+                "❌ Interaction Error:",
+                error
             );
 
+            if (!interaction.replied) {
 
-        if (!response.ok) {
-
-            throw new Error(
-                `HTTP ${response.status}`
-            );
-
+                await interaction.reply({
+                    content:
+                        "❌ Đã xảy ra lỗi.",
+                    flags:
+                        MessageFlags.Ephemeral
+                });
+            }
         }
-
-
-        const data =
-            await response.json();
-
-
-        if (
-            !data ||
-            typeof data.key !== "string" ||
-            !data.key.trim()
-        ) {
-
-            throw new Error(
-                "API không trả về key."
-            );
-
-        }
-
-
-        return data.key.trim();
-
-
-    } finally {
-
-        clearTimeout(timeout);
-
-    }
-
-}
-
-
-/*
-============================================================
-    SHOW KEY
-============================================================
-*/
-
-function showKey(key) {
-
-    quiz.style.display =
-        "none";
-
-    loadingScreen.style.display =
-        "none";
-
-    keyContainer.style.display =
-        "block";
-
-    keyValue.textContent =
-        key;
-
-}
-
-
-/*
-============================================================
-    COPY
-============================================================
-*/
-
-async function copyKey() {
-
-    const key =
-        keyValue.textContent.trim();
-
-
-    if (
-        !key ||
-        key === "Đang tải..."
-    ) {
-
-        return;
-
-    }
-
-
-    try {
-
-        await navigator.clipboard.writeText(
-            key
-        );
-
-    } catch {
-
-        const textarea =
-            document.createElement(
-                "textarea"
-            );
-
-        textarea.value =
-            key;
-
-        textarea.style.position =
-            "fixed";
-
-        textarea.style.opacity =
-            "0";
-
-        document.body.appendChild(
-            textarea
-        );
-
-        textarea.select();
-
-        document.execCommand(
-            "copy"
-        );
-
-        textarea.remove();
-
-    }
-
-
-    copyButton.textContent =
-        "ĐÃ COPY ✓";
-
-
-    setTimeout(() => {
-
-        copyButton.textContent =
-            "COPY";
-
-    }, 2000);
-
-}
-
-
-/*
-============================================================
-    CACHE KEY
-============================================================
-*/
-
-function checkCachedKey() {
-
-    const key =
-        localStorage.getItem(
-            "grx_cached_key"
-        );
-
-    const time =
-        parseInt(
-            localStorage.getItem(
-                "grx_cached_key_time"
-            ) || "0"
-        );
-
-
-    if (
-        key &&
-        time &&
-        Date.now() - time <
-            KEY_CACHE_TIME
-    ) {
-
-        showKey(key);
-
-        return true;
-
-    }
-
-
-    /*
-        Cache hết hạn
-    */
-
-    localStorage.removeItem(
-        "grx_cached_key"
-    );
-
-    localStorage.removeItem(
-        "grx_cached_key_time"
-    );
-
-
-    return false;
-
-}
-
-
-/*
-============================================================
-    START
-============================================================
-*/
-
-window.addEventListener(
-    "load",
-    () => {
-
-        updateDailyCount();
-
-
-        /*
-            Kiểm tra auth
-        */
-
-        if (
-            !validateUrlAuth()
-        ) {
-
-            return;
-
-        }
-
-
-        /*
-            Nếu còn Key cache
-            thì hiện lại Key.
-        */
-
-        if (
-            checkCachedKey()
-        ) {
-
-            return;
-
-        }
-
-
-        /*
-            Focus vào ô nhập
-        */
-
-        setTimeout(
-            () => {
-
-                answer.focus();
-
-            },
-            300
-        );
-
     }
 );
 
-</script>
+/* =========================
+   LOGIN
+========================= */
 
-</body>
-</html>
+client.login(process.env.TOKEN);
