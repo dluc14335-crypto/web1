@@ -1,236 +1,692 @@
 require("dotenv").config();
 
 const {
-    Client, GatewayIntentBits, SlashCommandBuilder, REST, Routes,
-    ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, MessageFlags
+    Client,
+    GatewayIntentBits,
+    SlashCommandBuilder,
+    REST,
+    Routes,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    EmbedBuilder,
+    MessageFlags
 } = require("discord.js");
 
 const express = require("express");
 const cors = require("cors");
+
 const app = express();
 
-// Bộ nhớ lưu trữ Key kèm thời gian khởi tạo (Hỗ trợ check hạn 10 phút)
-const validKeys = new Map();
-
-// Hệ thống lưu trữ điểm cộng dồn của người dùng
-const userPoints = new Map();
+/* =========================
+   API CONFIG
+========================= */
 
 app.use(cors());
-
-// Endpoint API: Cấp phát Key mới cho trang web
-app.get("/api/get-key", (req, res) => {
-    const randomNumbers = Math.floor(10000000 + Math.random() * 90000000);
-    const newKey = `GRX=${randomNumbers}`;
-    
-    // Lưu Key mới kèm timestamp
-    validKeys.set(newKey, Date.now()); 
-    console.log(`🔑 API vừa cấp phát 1 Key mới: ${newKey}`);
-    res.json({ key: newKey });
-});
+app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`🌐 Máy chủ API lấy Key đang chạy tại http://localhost:${PORT}`);
+const HOST = "0.0.0.0";
+
+/* =========================
+   KEY SYSTEM
+========================= */
+
+const validKeys = new Map();
+
+/* =========================
+   USER POINTS
+========================= */
+
+const userPoints = new Map();
+
+/* =========================
+   HEALTH CHECK
+========================= */
+
+app.get("/", (req, res) => {
+    res.json({
+        status: "online",
+        service: "GRX Key System",
+        api: true
+    });
 });
 
-if (!process.env.TOKEN) { console.log("❌ Không tìm thấy TOKEN trong .env"); process.exit(1); }
-if (!process.env.CLIENT_ID) { console.log("❌ Không tìm thấy CLIENT_ID trong .env"); process.exit(1); }
+/* =========================
+   GET KEY
+========================= */
+
+app.get("/api/get-key", (req, res) => {
+    try {
+        const randomNumbers = Math.floor(
+            10000000 + Math.random() * 90000000
+        );
+
+        const newKey = `GRX=${randomNumbers}`;
+
+        validKeys.set(newKey, Date.now());
+
+        console.log(`🔑 API cấp Key: ${newKey}`);
+
+        res.status(200).json({
+            key: newKey
+        });
+
+    } catch (error) {
+        console.error("❌ Lỗi tạo Key:", error);
+
+        res.status(500).json({
+            error: "Không thể tạo Key"
+        });
+    }
+});
+
+/* =========================
+   CHECK KEY
+========================= */
+
+app.get("/api/check-key", (req, res) => {
+    const key = req.query.key;
+
+    if (!key) {
+        return res.status(400).json({
+            valid: false,
+            message: "Thiếu Key"
+        });
+    }
+
+    if (!validKeys.has(key)) {
+        return res.json({
+            valid: false,
+            message: "Key không tồn tại hoặc đã được sử dụng"
+        });
+    }
+
+    const createdAt = validKeys.get(key);
+    const expiresIn = 10 * 60 * 1000;
+
+    if (Date.now() - createdAt > expiresIn) {
+        validKeys.delete(key);
+
+        return res.json({
+            valid: false,
+            message: "Key đã hết hạn"
+        });
+    }
+
+    res.json({
+        valid: true,
+        message: "Key hợp lệ"
+    });
+});
+
+/* =========================
+   API ERROR HANDLER
+========================= */
+
+app.use((err, req, res, next) => {
+    console.error("❌ API ERROR:", err);
+
+    res.status(500).json({
+        error: "Internal Server Error"
+    });
+});
+
+/* =========================
+   START SERVER
+========================= */
+
+app.listen(PORT, HOST, () => {
+    console.log(
+        `🌐 API đang chạy tại http://${HOST}:${PORT}`
+    );
+
+    console.log(
+        `🔑 GET KEY: http://localhost:${PORT}/api/get-key`
+    );
+});
+
+/* =========================
+   DISCORD BOT
+========================= */
+
+if (!process.env.TOKEN) {
+    console.log("❌ Không tìm thấy TOKEN trong .env");
+    process.exit(1);
+}
+
+if (!process.env.CLIENT_ID) {
+    console.log("❌ Không tìm thấy CLIENT_ID trong .env");
+    process.exit(1);
+}
 
 const client = new Client({
     intents: [GatewayIntentBits.Guilds]
 });
 
-client.on("error", error => { console.error("⚠️ Discord Client Error:", error); });
-client.on("warn", message => { console.log(`⚠️ Discord Warning: ${message}`); });
-process.on("unhandledRejection", reason => { console.error("⚠️ Unhandled Promise Rejection:", reason); });
-process.on("uncaughtException", error => { console.error("⚠️ Uncaught Exception:", error); });
+client.on("error", error => {
+    console.error("⚠️ Discord Client Error:", error);
+});
+
+client.on("warn", message => {
+    console.log(`⚠️ Discord Warning: ${message}`);
+});
+
+process.on("unhandledRejection", reason => {
+    console.error("⚠️ Unhandled Promise Rejection:", reason);
+});
+
+process.on("uncaughtException", error => {
+    console.error("⚠️ Uncaught Exception:", error);
+});
+
+/* =========================
+   COMMANDS
+========================= */
 
 const commands = [
     new SlashCommandBuilder()
         .setName("link")
-        .setDescription("Lấy danh sách link Client và Script Roblox với hiệu ứng tải an toàn"),
-    
+        .setDescription("Lấy danh sách link Client và Script Roblox"),
+
     new SlashCommandBuilder()
         .setName("key")
-        .setDescription("Lấy key hệ thống (Sẽ mở ra menu chọn Key)"),
-        
+        .setDescription("Lấy key hệ thống"),
+
     new SlashCommandBuilder()
         .setName("nhandiem")
-        .setDescription("Nhập mã key từ website để lấy điểm thưởng")
-        .addStringOption(option => 
-            option.setName("ma_key")
-                .setDescription("Nhập mã key có định dạng GRX=...")
-                .setRequired(true))
+        .setDescription("Nhập Key để nhận điểm")
+        .addStringOption(option =>
+            option
+                .setName("ma_key")
+                .setDescription("Nhập mã GRX=...")
+                .setRequired(true)
+        )
 ].map(command => command.toJSON());
 
+/* =========================
+   REGISTER COMMANDS
+========================= */
+
 async function registerCommands() {
-    const rest = new REST({ version: "10", timeout: 30000 }).setToken(process.env.TOKEN);
+
+    const rest = new REST({
+        version: "10",
+        timeout: 30000
+    }).setToken(process.env.TOKEN);
+
     try {
-        console.log("⏳ Đang đăng ký các lệnh Slash Command...");
+
+        console.log("⏳ Đang đăng ký Slash Commands...");
+
         if (process.env.GUILD_ID) {
-            await rest.put(Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID), { body: commands });
-            console.log("✅ Đã đăng ký lệnh cho Server (Guild)!");
+
+            await rest.put(
+                Routes.applicationGuildCommands(
+                    process.env.CLIENT_ID,
+                    process.env.GUILD_ID
+                ),
+                {
+                    body: commands
+                }
+            );
+
+            console.log("✅ Đã đăng ký Guild Commands!");
+
         } else {
-            await rest.put(Routes.applicationCommands(process.env.CLIENT_ID), { body: commands });
-            console.log("✅ Đã đăng ký lệnh Global thành công!");
+
+            await rest.put(
+                Routes.applicationCommands(
+                    process.env.CLIENT_ID
+                ),
+                {
+                    body: commands
+                }
+            );
+
+            console.log("✅ Đã đăng ký Global Commands!");
         }
+
     } catch (error) {
-        console.error("❌ Lỗi đăng ký lệnh:", error);
+
+        console.error(
+            "❌ Lỗi đăng ký Slash Commands:",
+            error
+        );
     }
 }
 
+/* =========================
+   BOT READY
+========================= */
+
 client.once("clientReady", async () => {
-    console.log(`✅ Bot Discord đã online: ${client.user.tag}`);
+
+    console.log(
+        `✅ Bot Discord đã online: ${client.user.tag}`
+    );
+
     await registerCommands();
 });
 
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+/* =========================
+   SLEEP
+========================= */
 
-async function processClientDownloadLink(interaction, clientName, downloadUrl) {
+const sleep = ms =>
+    new Promise(resolve => setTimeout(resolve, ms));
+
+/* =========================
+   CLIENT DOWNLOAD
+========================= */
+
+async function processClientDownloadLink(
+    interaction,
+    clientName,
+    downloadUrl
+) {
+
     const initialEmbed = new EmbedBuilder()
-        .setTitle(`⚡ ĐANG KHỞI TẠO TẢI: ${clientName.toUpperCase()}`)
-        .setDescription(`\`\`\`ansi\n\u001b[1;33m[1/4] ⏳ Đang kết nối máy chủ bảo mật Roblox...\u001b[0m\n\`\`\`\n**Tiến trình:** \`[███░░░░░░░░░░░░░░░░░] 15%\`\n*Vui lòng giữ nguyên màn hình...*`)
-        .setColor(0xFEE75C).setTimestamp();
-    await interaction.reply({ embeds: [initialEmbed], flags: MessageFlags.Ephemeral });
+        .setTitle(
+            `⚡ ĐANG KHỞI TẠO TẢI: ${clientName.toUpperCase()}`
+        )
+        .setDescription(
+            "⏳ Đang xử lý yêu cầu của bạn..."
+        )
+        .setColor(0xFEE75C);
 
-    await sleep(3500);
+    await interaction.reply({
+        embeds: [initialEmbed],
+        flags: MessageFlags.Ephemeral
+    });
+
+    await sleep(3000);
+
     const stage2Embed = new EmbedBuilder()
-        .setTitle(`🛡️ ĐANG BẢO MẬT: ${clientName.toUpperCase()}`)
-        .setDescription(`\`\`\`ansi\n\u001b[1;36m[2/4] 🔐 Đang giải mã Bypass Anti-Cheat...\u001b[0m\n\`\`\`\n**Tiến trình:** \`[██████████░░░░░░░░░░] 48%\``)
-        .setColor(0x3498DB).setTimestamp();
-    await interaction.editReply({ embeds: [stage2Embed] });
+        .setTitle(
+            `🔐 ĐANG XỬ LÝ: ${clientName.toUpperCase()}`
+        )
+        .setDescription(
+            "Đang chuẩn bị liên kết tải..."
+        )
+        .setColor(0x3498DB);
 
-    await sleep(3500);
-    const stage3Embed = new EmbedBuilder()
-        .setTitle(`🚀 ĐANG ĐÓNG GÓI LINK TẢI: ${clientName.toUpperCase()}`)
-        .setDescription(`\`\`\`ansi\n\u001b[1;35m[3/4] ⚡ Đang cấp quyền Token Tải VIP...\u001b[0m\n\`\`\`\n**Tiến trình:** \`[████████████████░░░░] 82%\``)
-        .setColor(0x9B59B6).setTimestamp();
-    await interaction.editReply({ embeds: [stage3Embed] });
+    await interaction.editReply({
+        embeds: [stage2Embed]
+    });
 
-    await sleep(6000); 
-    const successEffectEmbed = new EmbedBuilder()
-        .setTitle(`🎉 TẠO LINK THÀNH CÔNG! (ĐANG KÍCH HOẠT HIỆU ỨNG)`)
-        .setDescription(`\`\`\`ansi\n\u001b[1;32m[4/4] ✅ ĐÃ HOÀN TẤT KIỂM TRA BẢO MẬT 100%!\u001b[0m\n\`\`\`\n✨ **Trạng thái:** \`[████████████████████] 100%\`\n🌟 **Đang tải liên kết...**`)
-        .setColor(0x57F287).setFooter({ text: "Vui lòng chờ 6 giây hiệu ứng" });
-    await interaction.editReply({ embeds: [successEffectEmbed] });
+    await sleep(3000);
 
-    await sleep(6000);
-    const finalEmbed = new EmbedBuilder()
-        .setTitle(`📥 TẢI XONG CLIENT: ${clientName.toUpperCase()}`)
-        .setDescription(`✅ **Hoàn tất tạo link VIP!**\n📌 **Tên Client:** \`${clientName}\`\n🛡️ **Bảo vệ:** \`Anti-Cheat Safe 100%\`\n👉 *Bấm nút bên dưới để tải:*`)
-        .setColor(0x00FFB3).setFooter({ text: "Link 24/7" }).setTimestamp();
-    const downloadRow = new ActionRowBuilder().addComponents(
-        new ButtonBuilder().setLabel(`🚀 Tải Client ${clientName} Ngay`).setStyle(ButtonStyle.Link).setURL(downloadUrl)
-    );
-    await interaction.editReply({ embeds: [finalEmbed], components: [downloadRow] });
+    const successEmbed = new EmbedBuilder()
+        .setTitle(
+            `✅ HOÀN TẤT: ${clientName.toUpperCase()}`
+        )
+        .setDescription(
+            `Đã tạo liên kết cho **${clientName}**.\n\n` +
+            "👉 Bấm nút bên dưới để tiếp tục."
+        )
+        .setColor(0x57F287);
+
+    const downloadRow =
+        new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setLabel(`Mở ${clientName}`)
+                .setStyle(ButtonStyle.Link)
+                .setURL(downloadUrl)
+        );
+
+    await interaction.editReply({
+        embeds: [successEmbed],
+        components: [downloadRow]
+    });
 }
 
-client.on("interactionCreate", async interaction => {
-    if (interaction.isChatInputCommand()) {
-        
-        // --- LỆNH /LINK ---
-        if (interaction.commandName === "link") {
-            const currentPoints = userPoints.get(interaction.user.id) || 0;
-            const mainEmbed = new EmbedBuilder()
-                .setTitle("🤖 HỆ THỐNG TẢI CLIENT ROBLOX VIP")
-                .setDescription(`Chào bạn **${interaction.user.username}**! Chọn Client muốn lấy link.\n💰 **Điểm của bạn:** ${currentPoints} (Cần 30 điểm để tải)\n\n1️⃣ **Xeno**\n2️⃣ **Velocity**\n3️⃣ **Vortex**`)
-                .setColor(0x5865F2);
-            const clientSelectRow = new ActionRowBuilder().addComponents(
-                new ButtonBuilder().setCustomId("get_xeno").setLabel("Tải Xeno").setStyle(ButtonStyle.Primary).setEmoji("🚀"),
-                new ButtonBuilder().setCustomId("get_velocity").setLabel("Tải Velocity").setStyle(ButtonStyle.Success).setEmoji("⚡"),
-                new ButtonBuilder().setCustomId("get_vortex").setLabel("Tải Vortex").setStyle(ButtonStyle.Danger).setEmoji("🌀")
-            );
-            return await interaction.reply({ embeds: [mainEmbed], components: [clientSelectRow] });
-        }
+/* =========================
+   INTERACTIONS
+========================= */
 
-        // --- LỆNH /KEY ---
-        if (interaction.commandName === "key") {
-            const keyEmbed = new EmbedBuilder()
-                .setTitle("🔑 HỆ THỐNG GET KEY")
-                .setDescription("Vui lòng chọn loại Key bạn muốn lấy từ hệ thống của chúng tôi.")
-                .setColor(0xFEE75C);
-            const keyRow = new ActionRowBuilder().addComponents(
-                new ButtonBuilder().setCustomId("key_velocity_btn").setLabel("Lấy Key Velocity").setStyle(ButtonStyle.Secondary).setEmoji("🗝️")
-            );
-            return await interaction.reply({ embeds: [keyEmbed], components: [keyRow] });
-        }
+client.on(
+    "interactionCreate",
+    async interaction => {
 
-        // --- LỆNH /NHANDIEM ---
-        if (interaction.commandName === "nhandiem") {
-            const inputKey = interaction.options.getString("ma_key");
+        try {
 
-            // KIỂM TRA KEY TỪ BỘ NHỚ BOT
-            if (validKeys.has(inputKey)) {
-                const timeCreated = validKeys.get(inputKey);
-                const tenMinutes = 10 * 60 * 1000;
+            /* =====================
+               SLASH COMMANDS
+            ===================== */
 
-                // 1. Kiểm tra thời hạn 10 phút
-                if (Date.now() - timeCreated > tenMinutes) {
-                    validKeys.delete(inputKey);
-                    const expireEmbed = new EmbedBuilder()
-                        .setTitle("⏳ KEY ĐÃ HẾT HẠN!")
-                        .setDescription(`Mã \`${inputKey}\` đã quá hạn 10 phút kể từ lúc tạo.\nVui lòng vào lại trang web để lấy Key mới!`)
-                        .setColor(0xED4245);
-                    return await interaction.reply({ embeds: [expireEmbed], flags: MessageFlags.Ephemeral });
+            if (interaction.isChatInputCommand()) {
+
+                /* /LINK */
+
+                if (interaction.commandName === "link") {
+
+                    const currentPoints =
+                        userPoints.get(
+                            interaction.user.id
+                        ) || 0;
+
+                    const embed =
+                        new EmbedBuilder()
+                            .setTitle(
+                                "🤖 GRX CLIENT SYSTEM"
+                            )
+                            .setDescription(
+                                `Xin chào **${interaction.user.username}**!\n\n` +
+                                `💰 Điểm hiện tại: **${currentPoints}**\n` +
+                                `💳 Cần **30 điểm** để sử dụng.\n\n` +
+                                "Chọn Client:"
+                            )
+                            .setColor(0x5865F2);
+
+                    const row =
+                        new ActionRowBuilder()
+                            .addComponents(
+
+                                new ButtonBuilder()
+                                    .setCustomId(
+                                        "get_xeno"
+                                    )
+                                    .setLabel("Xeno")
+                                    .setStyle(
+                                        ButtonStyle.Primary
+                                    ),
+
+                                new ButtonBuilder()
+                                    .setCustomId(
+                                        "get_velocity"
+                                    )
+                                    .setLabel("Velocity")
+                                    .setStyle(
+                                        ButtonStyle.Success
+                                    ),
+
+                                new ButtonBuilder()
+                                    .setCustomId(
+                                        "get_vortex"
+                                    )
+                                    .setLabel("Vortex")
+                                    .setStyle(
+                                        ButtonStyle.Danger
+                                    )
+                            );
+
+                    return interaction.reply({
+                        embeds: [embed],
+                        components: [row]
+                    });
                 }
 
-                // 2. Xóa Key đã dùng
-                validKeys.delete(inputKey);
+                /* /KEY */
 
-                // 3. Cộng dồn 100 điểm cho người dùng (Điểm cũ + 100)
-                const currentPoints = userPoints.get(interaction.user.id) || 0;
-                const newPoints = currentPoints + 100;
-                userPoints.set(interaction.user.id, newPoints);
+                if (interaction.commandName === "key") {
 
-                // 4. Thông báo nhận điểm thành công
-                const successEmbed = new EmbedBuilder()
-                    .setTitle("✅ XÁC NHẬN KEY THÀNH CÔNG")
-                    .setDescription(`Chúc mừng **${interaction.user.username}**, mã Key hợp lệ!\n\n🎉 **Bạn đã nhận được 100 điểm nhé!**\n💰 Số điểm hiện tại của bạn: **${newPoints} điểm**\n\n👉 *Bây giờ bạn có thể dùng lệnh \`/link\` để tải Client.*`)
-                    .setColor(0x57F287)
-                    .setFooter({ text: "Cảm ơn bạn đã sử dụng hệ thống!" });
-                
-                return await interaction.reply({ embeds: [successEmbed] });
-            } else {
-                const failEmbed = new EmbedBuilder()
-                    .setTitle("❌ KEY KHÔNG HỢP LỆ HOẶC ĐÃ SỬ DỤNG!")
-                    .setDescription(`Mã \`${inputKey}\` không tồn tại trong hệ thống hoặc đã được người khác sử dụng.\n\nVui lòng lên website chính thức để lấy Key mới!`)
-                    .setColor(0xED4245);
-                
-                return await interaction.reply({ embeds: [failEmbed], flags: MessageFlags.Ephemeral });
+                    const embed =
+                        new EmbedBuilder()
+                            .setTitle(
+                                "🔑 GRX KEY SYSTEM"
+                            )
+                            .setDescription(
+                                "Chọn hệ thống Key:"
+                            )
+                            .setColor(0xFEE75C);
+
+                    const row =
+                        new ActionRowBuilder()
+                            .addComponents(
+                                new ButtonBuilder()
+                                    .setCustomId(
+                                        "key_velocity_btn"
+                                    )
+                                    .setLabel(
+                                        "Lấy Key"
+                                    )
+                                    .setStyle(
+                                        ButtonStyle.Secondary
+                                    )
+                            );
+
+                    return interaction.reply({
+                        embeds: [embed],
+                        components: [row]
+                    });
+                }
+
+                /* /NHANDIEM */
+
+                if (
+                    interaction.commandName ===
+                    "nhandiem"
+                ) {
+
+                    const inputKey =
+                        interaction.options.getString(
+                            "ma_key"
+                        );
+
+                    if (!validKeys.has(inputKey)) {
+
+                        return interaction.reply({
+                            embeds: [
+                                new EmbedBuilder()
+                                    .setTitle(
+                                        "❌ KEY KHÔNG HỢP LỆ"
+                                    )
+                                    .setDescription(
+                                        "Key không tồn tại hoặc đã được sử dụng."
+                                    )
+                                    .setColor(
+                                        0xED4245
+                                    )
+                            ],
+                            flags:
+                                MessageFlags.Ephemeral
+                        });
+                    }
+
+                    const createdAt =
+                        validKeys.get(inputKey);
+
+                    const tenMinutes =
+                        10 * 60 * 1000;
+
+                    if (
+                        Date.now() -
+                        createdAt >
+                        tenMinutes
+                    ) {
+
+                        validKeys.delete(inputKey);
+
+                        return interaction.reply({
+                            embeds: [
+                                new EmbedBuilder()
+                                    .setTitle(
+                                        "⏳ KEY ĐÃ HẾT HẠN"
+                                    )
+                                    .setDescription(
+                                        "Key đã quá 10 phút."
+                                    )
+                                    .setColor(
+                                        0xED4245
+                                    )
+                            ],
+                            flags:
+                                MessageFlags.Ephemeral
+                        });
+                    }
+
+                    /* KEY CHỈ DÙNG 1 LẦN */
+
+                    validKeys.delete(inputKey);
+
+                    const currentPoints =
+                        userPoints.get(
+                            interaction.user.id
+                        ) || 0;
+
+                    const newPoints =
+                        currentPoints + 100;
+
+                    userPoints.set(
+                        interaction.user.id,
+                        newPoints
+                    );
+
+                    return interaction.reply({
+                        embeds: [
+                            new EmbedBuilder()
+                                .setTitle(
+                                    "✅ NHẬN ĐIỂM THÀNH CÔNG"
+                                )
+                                .setDescription(
+                                    `Bạn đã nhận **100 điểm**!\n\n` +
+                                    `💰 Điểm hiện tại: **${newPoints}**`
+                                )
+                                .setColor(
+                                    0x57F287
+                                )
+                        ]
+                    });
+                }
+            }
+
+            /* =====================
+               BUTTONS
+            ===================== */
+
+            if (interaction.isButton()) {
+
+                const {
+                    customId
+                } = interaction;
+
+                /* KEY */
+
+                if (
+                    customId ===
+                    "key_velocity_btn"
+                ) {
+
+                    return interaction.reply({
+                        embeds: [
+                            new EmbedBuilder()
+                                .setTitle(
+                                    "🛠️ HỆ THỐNG"
+                                )
+                                .setDescription(
+                                    "Hệ thống Key đang được bảo trì."
+                                )
+                                .setColor(
+                                    0xED4245
+                                )
+                        ],
+                        flags:
+                            MessageFlags.Ephemeral
+                    });
+                }
+
+                /* CLIENT */
+
+                if (
+                    [
+                        "get_xeno",
+                        "get_velocity",
+                        "get_vortex"
+                    ].includes(customId)
+                ) {
+
+                    const currentPoints =
+                        userPoints.get(
+                            interaction.user.id
+                        ) || 0;
+
+                    if (currentPoints < 30) {
+
+                        return interaction.reply({
+                            embeds: [
+                                new EmbedBuilder()
+                                    .setTitle(
+                                        "💳 KHÔNG ĐỦ ĐIỂM"
+                                    )
+                                    .setDescription(
+                                        `Bạn đang có **${currentPoints} điểm**.\n` +
+                                        "Cần **30 điểm**."
+                                    )
+                                    .setColor(
+                                        0xED4245
+                                    )
+                            ],
+                            flags:
+                                MessageFlags.Ephemeral
+                        });
+                    }
+
+                    userPoints.set(
+                        interaction.user.id,
+                        currentPoints - 30
+                    );
+
+                    if (
+                        customId ===
+                        "get_xeno"
+                    ) {
+
+                        return processClientDownloadLink(
+                            interaction,
+                            "Xeno",
+                            "https://xeno.now/99aca0c5/3734fe27c699/73662e3d135f"
+                        );
+                    }
+
+                    if (
+                        customId ===
+                        "get_velocity"
+                    ) {
+
+                        return processClientDownloadLink(
+                            interaction,
+                            "Velocity",
+                            "https://zufile.com/download/YqCwfcj5Xc"
+                        );
+                    }
+
+                    if (
+                        customId ===
+                        "get_vortex"
+                    ) {
+
+                        return processClientDownloadLink(
+                            interaction,
+                            "Vortex",
+                            "https://zufile.com/download/U8WJgbbWRF"
+                        );
+                    }
+                }
+            }
+
+        } catch (error) {
+
+            console.error(
+                "❌ Interaction Error:",
+                error
+            );
+
+            if (!interaction.replied) {
+
+                await interaction.reply({
+                    content:
+                        "❌ Đã xảy ra lỗi.",
+                    flags:
+                        MessageFlags.Ephemeral
+                });
             }
         }
     }
+);
 
-    if (interaction.isButton()) {
-        const { customId } = interaction;
-        
-        if (customId === "key_velocity_btn") {
-            const maintenanceEmbed = new EmbedBuilder()
-                .setTitle("🛠️ HỆ THỐNG ĐANG BẢO TRÌ")
-                .setDescription("Chức năng Get Key Velocity hiện đang được nâng cấp và bảo trì. Vui lòng quay lại sau!")
-                .setColor(0xED4245);
-            return await interaction.reply({ embeds: [maintenanceEmbed], flags: MessageFlags.Ephemeral });
-        }
-
-        if (["get_xeno", "get_velocity", "get_vortex"].includes(customId)) {
-            const currentPoints = userPoints.get(interaction.user.id) || 0;
-            
-            if (currentPoints < 30) {
-                const noPointsEmbed = new EmbedBuilder()
-                    .setTitle("💳 KHÔNG ĐỦ ĐIỂM!")
-                    .setDescription(`Bạn cần **30 điểm** để tải Client này.\nHiện tại bạn chỉ có: **${currentPoints} điểm**.\n\n👉 *Hãy dùng lệnh \`/nhandiem\` kèm mã Key từ web để nhận 100 điểm.*`)
-                    .setColor(0xED4245);
-                return await interaction.reply({ embeds: [noPointsEmbed], flags: MessageFlags.Ephemeral });
-            }
-
-            // Trừ 30 điểm
-            userPoints.set(interaction.user.id, currentPoints - 30);
-            
-            if (customId === "get_xeno") return await processClientDownloadLink(interaction, "Xeno", "https://xeno.now/99aca0c5/3734fe27c699/73662e3d135f");
-            if (customId === "get_velocity") return await processClientDownloadLink(interaction, "Velocity", "https://zufile.com/download/YqCwfcj5Xc");
-            if (customId === "get_vortex") return await processClientDownloadLink(interaction, "Vortex", "https://zufile.com/download/U8WJgbbWRF");
-        }
-    }
-});
+/* =========================
+   LOGIN
+========================= */
 
 client.login(process.env.TOKEN);
