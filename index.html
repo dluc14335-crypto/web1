@@ -3,293 +3,1930 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Lấy Key Tự Động - GRX</title>
+
+    <title>GRX Key System</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet"
+    >
+
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .bg-animated {
-            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #111827, #020617);
-            background-size: 400% 400%;
-            animation: gradient 15s ease infinite;
+
+        * {
+            box-sizing: border-box;
         }
-        @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
         }
-        .loader {
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            width: 40px;
-            height: 40px;
+
+        body {
+            min-height: 100vh;
+            font-family: "Inter", sans-serif;
+            color: #fff;
+            overflow-x: hidden;
+
+            background:
+                radial-gradient(
+                    circle at 15% 20%,
+                    rgba(99,102,241,.22),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 85% 80%,
+                    rgba(168,85,247,.20),
+                    transparent 30%
+                ),
+                linear-gradient(
+                    135deg,
+                    #020617,
+                    #0f172a,
+                    #111827
+                );
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+
+            background:
+                linear-gradient(
+                    120deg,
+                    transparent,
+                    rgba(255,255,255,.025),
+                    transparent
+                );
+
+            animation: backgroundMove 9s linear infinite;
+        }
+
+        @keyframes backgroundMove {
+
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+
+        }
+
+        .wrapper {
+            min-height: 100vh;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            padding: 20px;
+        }
+
+        .card-border {
+            width: 100%;
+            max-width: 620px;
+
+            padding: 2px;
+
+            border-radius: 28px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(99,102,241,.85),
+                    rgba(168,85,247,.55),
+                    rgba(59,130,246,.75)
+                );
+
+            box-shadow:
+                0 0 45px rgba(99,102,241,.16),
+                0 0 100px rgba(168,85,247,.08);
+        }
+
+        .card {
+            border-radius: 26px;
+
+            padding: 34px;
+
+            background:
+                rgba(2,6,23,.96);
+
+            backdrop-filter: blur(25px);
+        }
+
+        .logo {
+            width: 78px;
+            height: 78px;
+
+            margin: 0 auto 20px;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            border-radius: 22px;
+
+            font-size: 25px;
+            font-weight: 900;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #6366f1,
+                    #8b5cf6,
+                    #3b82f6
+                );
+
+            box-shadow:
+                0 0 35px rgba(99,102,241,.40);
+
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes logoFloat {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-7px);
+            }
+
+        }
+
+        .title {
+            text-align: center;
+
+            font-size: 27px;
+            font-weight: 900;
+
+            letter-spacing: -.6px;
+        }
+
+        .subtitle {
+            margin-top: 8px;
+
+            text-align: center;
+
+            color: #94a3b8;
+
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .status-wrap {
+            display: flex;
+            justify-content: center;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            margin-top: 18px;
+            padding: 7px 13px;
+
+            border-radius: 999px;
+
+            color: #86efac;
+
+            background:
+                rgba(34,197,94,.08);
+
+            border:
+                1px solid rgba(34,197,94,.18);
+
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+
             border-radius: 50%;
-            border-left-color: #3b82f6;
-            animation: spin 1s linear infinite;
+
+            background: #22c55e;
+
+            box-shadow:
+                0 0 10px #22c55e;
+
+            animation: pulse 1.5s infinite;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: .3;
+            }
+
+        }
+
+        .counter {
+            margin-top: 15px;
+
+            text-align: center;
+
+            color: #64748b;
+
+            font-size: 11px;
+        }
+
+        .section {
+            margin-top: 28px;
+        }
+
+        .section-title {
+            margin-bottom: 10px;
+
+            color: #e2e8f0;
+
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .question-box {
+            padding: 21px;
+
+            border-radius: 18px;
+
+            background:
+                rgba(15,23,42,.72);
+
+            border:
+                1px solid rgba(148,163,184,.11);
+        }
+
+        .question-number {
+            margin-bottom: 8px;
+
+            color: #818cf8;
+
+            font-size: 10px;
+            font-weight: 900;
+
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .question-text {
+            margin-bottom: 17px;
+
+            color: #f8fafc;
+
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .answer-input {
+            width: 100%;
+
+            padding: 14px 15px;
+
+            border-radius: 13px;
+
+            outline: none;
+
+            color: white;
+
+            background:
+                rgba(2,6,23,.90);
+
+            border:
+                1px solid rgba(148,163,184,.16);
+
+            transition: .2s;
+        }
+
+        .answer-input:focus {
+            border-color: #6366f1;
+
+            box-shadow:
+                0 0 0 4px rgba(99,102,241,.10);
+        }
+
+        .button {
+            width: 100%;
+
+            margin-top: 17px;
+
+            padding: 15px;
+
+            border: 0;
+            border-radius: 14px;
+
+            color: white;
+
+            cursor: pointer;
+
+            font-size: 13px;
+            font-weight: 900;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #6366f1,
+                    #7c3aed
+                );
+
+            box-shadow:
+                0 10px 30px rgba(99,102,241,.22);
+
+            transition: .2s;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+        }
+
+        .button:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error {
+            display: none;
+
+            margin-top: 12px;
+
+            padding: 12px 14px;
+
+            border-radius: 12px;
+
+            color: #fca5a5;
+
+            background:
+                rgba(239,68,68,.08);
+
+            border:
+                1px solid rgba(239,68,68,.17);
+
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .info {
+            margin-top: 17px;
+
+            padding: 13px;
+
+            border-radius: 13px;
+
+            color: #94a3b8;
+
+            background:
+                rgba(15,23,42,.55);
+
+            border:
+                1px solid rgba(148,163,184,.08);
+
+            font-size: 11px;
+            line-height: 1.7;
+        }
+
+        /* =========================
+           LOADING
+        ========================= */
+
+        #loadingScreen {
+            display: none;
+
+            text-align: center;
+        }
+
+        .circle {
+            position: relative;
+
+            width: 180px;
+            height: 180px;
+
+            margin: 5px auto 24px;
+        }
+
+        .circle svg {
+            width: 180px;
+            height: 180px;
+
+            transform: rotate(-90deg);
+        }
+
+        .track {
+            fill: none;
+
+            stroke:
+                rgba(148,163,184,.10);
+
+            stroke-width: 9;
+        }
+
+        .progress {
+            fill: none;
+
+            stroke: #818cf8;
+
+            stroke-width: 9;
+
+            stroke-linecap: round;
+
+            stroke-dasharray: 471;
+
+            stroke-dashoffset: 471;
+
+            filter:
+                drop-shadow(
+                    0 0 8px
+                    rgba(129,140,248,.8)
+                );
+
+            transition:
+                stroke-dashoffset .1s linear;
+        }
+
+        .circle-center {
+            position: absolute;
+
+            inset: 0;
+
+            display: flex;
+            flex-direction: column;
+
+            justify-content: center;
+            align-items: center;
+        }
+
+        #percent {
+            font-size: 31px;
+            font-weight: 900;
+        }
+
+        .percent-small {
+            margin-top: 2px;
+
+            color: #94a3b8;
+
+            font-size: 10px;
+        }
+
+        .loading-title {
+            font-size: 20px;
+            font-weight: 900;
+        }
+
+        .loading-text {
+            max-width: 450px;
+
+            margin: 8px auto 0;
+
+            color: #94a3b8;
+
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .loading-status {
+            margin-top: 20px;
+
+            padding: 12px;
+
+            border-radius: 12px;
+
+            color: #c7d2fe;
+
+            background:
+                rgba(99,102,241,.08);
+
+            border:
+                1px solid rgba(99,102,241,.15);
+
+            font-size: 11px;
+        }
+
+        /* =========================
+           KEY
+        ========================= */
+
+        #keyContainer {
+            display: none;
+        }
+
+        .key-box {
+            padding: 22px;
+
+            border-radius: 18px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(34,197,94,.08),
+                    rgba(15,23,42,.75)
+                );
+
+            border:
+                1px solid rgba(34,197,94,.18);
+        }
+
+        .success-icon {
+            width: 60px;
+            height: 60px;
+
+            margin: 0 auto 15px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 18px;
+
+            color: #86efac;
+
+            background:
+                rgba(34,197,94,.10);
+
+            font-size: 28px;
+            font-weight: 900;
+        }
+
+        .key-title {
+            text-align: center;
+
+            font-size: 21px;
+            font-weight: 900;
+        }
+
+        .key-description {
+            margin-top: 7px;
+
+            text-align: center;
+
+            color: #94a3b8;
+
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .key-row {
+            display: flex;
+            gap: 8px;
+
+            margin-top: 20px;
+        }
+
+        .key {
+            flex: 1;
+
+            min-width: 0;
+
+            padding: 14px;
+
+            border-radius: 12px;
+
+            color: #a5b4fc;
+
+            background:
+                rgba(2,6,23,.9);
+
+            border:
+                1px solid rgba(99,102,241,.18);
+
+            font-family: monospace;
+
+            font-size: 13px;
+            font-weight: 800;
+
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .copy {
+            padding: 0 17px;
+
+            border: 0;
+            border-radius: 12px;
+
+            color: white;
+
+            background: #4f46e5;
+
+            cursor: pointer;
+
+            font-size: 11px;
+            font-weight: 900;
+        }
+
+        .expire {
+            margin-top: 12px;
+
+            text-align: center;
+
+            color: #64748b;
+
+            font-size: 10px;
+        }
+
+        .footer {
+            margin-top: 24px;
+
+            text-align: center;
+
+            color: #475569;
+
+            font-size: 9px;
+        }
+
+        /* =========================
+           UNAUTHORIZED
+        ========================= */
+
+        #unauthorized {
+            display: none;
+
+            text-align: center;
+        }
+
+        .lock {
+            width: 75px;
+            height: 75px;
+
+            margin: 0 auto 18px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 22px;
+
+            background:
+                rgba(239,68,68,.08);
+
+            border:
+                1px solid rgba(239,68,68,.18);
+
+            font-size: 31px;
+        }
+
+        @media(max-width:600px) {
+
+            .wrapper {
+                padding: 10px;
+            }
+
+            .card {
+                padding: 22px 17px;
+            }
+
+            .title {
+                font-size: 23px;
+            }
+
+            .circle,
+            .circle svg {
+                width: 155px;
+                height: 155px;
+            }
+
+        }
+
     </style>
 </head>
-<body class="bg-animated text-white min-h-screen flex items-center justify-center p-4">
 
-    <!-- 1. KHU VỰC CẢNH BÁO TRÁI PHÉP (Ẩn mặc định) -->
-    <div id="unauthorizedContainer" class="hidden bg-gray-900/90 backdrop-blur-lg border-2 border-red-600 p-8 rounded-2xl shadow-[0_0_30px_rgba(220,38,38,0.5)] max-w-md w-full text-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 text-red-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
-        <h1 class="text-3xl font-extrabold text-red-500 mb-2">TRUY CẬP TRÁI PHÉP!</h1>
-        <p class="text-gray-300 mb-4">Bạn đang cố tình truy cập link nhận Key khi chưa vượt qua bài kiểm tra xác minh, hoặc bạn đã copy link này từ một trình duyệt/thiết bị khác.</p>
-        <p class="text-yellow-400 font-bold mb-6 text-sm">Vui lòng quay lại trang chủ để trả lời câu hỏi xác minh!</p>
-        <button onclick="window.location.href=window.location.pathname" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200">
-            QUAY LẠI XÁC MINH
-        </button>
-    </div>
+<body>
 
-    <!-- 2. KHU VỰC GIỚI HẠN NHẬN KEY (Max 4 lần/ngày) -->
-    <div id="limitContainer" class="hidden bg-gray-900/90 backdrop-blur-lg border-2 border-orange-500 p-8 rounded-2xl shadow-[0_0_30px_rgba(249,115,22,0.5)] max-w-md w-full text-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 text-orange-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <h1 class="text-3xl font-extrabold text-orange-500 mb-2">ĐÃ HẾT LƯỢT!</h1>
-        <p class="text-gray-300 mb-4">Bạn đã đạt giới hạn lấy <b class="text-white">4 Key / Ngày</b>.</p>
-        <p class="text-yellow-400 font-bold mb-6 text-sm">Vui lòng quay lại vào ngày mai để tiếp tục nhận Key!</p>
-    </div>
+<div class="wrapper">
 
-    <!-- 3. KHU VỰC TRẢ LỜI CÂU HỎI (Trang 1) -->
-    <div id="quizContainer" class="hidden bg-gray-900/80 backdrop-blur-lg border border-gray-700 p-8 rounded-2xl shadow-2xl max-w-lg w-full">
-        <div class="text-center mb-6">
-            <h1 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500">
-                BƯỚC 1: XÁC MINH NGƯỜI DÙNG
-            </h1>
-            <p class="text-gray-400 mt-2 text-sm">Trả lời đúng 11 câu hỏi dưới đây để mở khóa link nhận Key.</p>
-        </div>
+    <div class="card-border">
 
-        <div id="questionsList" class="space-y-4 max-h-80 overflow-y-auto custom-scrollbar pr-2 mb-6">
-            <!-- Danh sách câu hỏi render động qua JS -->
-        </div>
+        <div class="card">
 
-        <div id="quizError" class="hidden text-red-400 text-sm text-center mb-4 font-semibold">
-            ❌ Bạn trả lời sai hoặc chưa điền đủ. Vui lòng kiểm tra lại!
-        </div>
+            <!-- =========================
+                 UNAUTHORIZED
+            ========================== -->
 
-        <button onclick="checkAnswers()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3 px-4 rounded-lg transition duration-200 shadow-lg shadow-blue-500/30">
-            XÁC NHẬN & MỞ KHÓA LINK NHẬN KEY
-        </button>
-    </div>
+            <div id="unauthorized">
 
-    <!-- 4. KHU VỰC LẤY KEY (Trang 2 - Chỉ hiển thị khi hợp lệ) -->
-    <div id="mainKeyContainer" class="hidden bg-gray-900/80 backdrop-blur-lg border border-gray-700 p-8 rounded-2xl shadow-2xl max-w-md w-full text-center">
-        <div class="mb-6">
-            <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
-                GET KEY TỰ ĐỘNG
-            </h1>
-            <p class="text-gray-400 mt-2 text-sm">Xác minh thành công! Đang cấp phát Key...</p>
-        </div>
-
-        <div class="space-y-6">
-            <div id="loadingArea" class="flex flex-col items-center justify-center py-4">
-                <div class="loader mb-4"></div>
-                <p id="loadingText" class="text-blue-400 font-semibold animate-pulse">Đang xin cấp Key từ hệ thống...</p>
-            </div>
-
-            <div id="keyContainer" class="hidden flex flex-col space-y-4">
-                <div class="bg-blue-900/30 border border-blue-500/50 p-3 rounded-lg text-sm text-blue-200">
-                    <p>🎉 Nhập Key này vào Bot để nhận <b>100 điểm</b>!</p>
-                    <p class="text-xs text-gray-400 mt-1">Lưu ý: Tải Client sẽ tốn 30 điểm.</p>
+                <div class="lock">
+                    🔒
                 </div>
 
-                <div class="flex items-center space-x-2">
-                    <input type="text" id="keyDisplay" readonly class="w-full bg-gray-800 border border-gray-600 rounded-lg py-3 px-4 text-center font-mono text-green-400 text-xl font-bold outline-none cursor-text">
-                    <button onclick="copyKey()" class="bg-gray-700 hover:bg-gray-600 p-3 rounded-lg transition duration-200" title="Sao chép">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                        </svg>
+                <div class="title">
+                    TRUY CẬP KHÔNG HỢP LỆ
+                </div>
+
+                <div class="subtitle">
+                    Liên kết xác thực không hợp lệ
+                    hoặc phiên xác thực đã hết hạn.
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 MAIN
+            ========================== -->
+
+            <div id="main">
+
+                <div class="logo">
+                    GRX
+                </div>
+
+                <div class="title">
+                    HỆ THỐNG LẤY KEY
+                </div>
+
+                <div class="subtitle">
+                    Hoàn thành xác minh để nhận
+                    Key từ hệ thống GRX.
+                </div>
+
+                <div class="status-wrap">
+
+                    <div class="status">
+
+                        <span class="status-dot"></span>
+
+                        HỆ THỐNG ĐANG HOẠT ĐỘNG
+
+                    </div>
+
+                </div>
+
+
+                <div class="counter">
+
+                    Lượt lấy Key hôm nay:
+                    <b id="dailyCount">0</b>/4
+
+                </div>
+
+
+                <!-- =========================
+                     QUIZ
+                ========================== -->
+
+                <div
+                    id="quiz"
+                    class="section"
+                >
+
+                    <div class="section-title">
+                        BƯỚC 1 — XÁC MINH NGƯỜI DÙNG
+                    </div>
+
+                    <div class="question-box">
+
+                        <div class="question-number">
+                            CÂU HỎI 1
+                        </div>
+
+                        <div class="question-text">
+                            1 + 1 bằng bao nhiêu?
+                        </div>
+
+                        <input
+                            id="answer"
+                            class="answer-input"
+                            type="text"
+                            placeholder="Nhập câu trả lời..."
+                            autocomplete="off"
+                            onkeydown="enterSubmit(event)"
+                        >
+
+                    </div>
+
+                    <div
+                        id="error"
+                        class="error"
+                    ></div>
+
+                    <button
+                        id="verifyButton"
+                        class="button"
+                        onclick="checkAnswer()"
+                    >
+                        🔐 XÁC NHẬN
                     </button>
+
+                    <div class="info">
+
+                        💡 Sau khi trả lời đúng,
+                        hệ thống sẽ thực hiện quá trình
+                        xác minh trong khoảng <b>60 giây</b>.
+
+                    </div>
+
                 </div>
-                <p id="copyMsg" class="text-green-500 text-sm font-semibold h-4 opacity-0 transition-opacity duration-300">Đã sao chép vào khay nhớ tạm!</p>
-                
-                <div class="bg-red-900/30 border border-red-500/50 p-3 rounded-lg text-sm">
-                    <p class="text-red-400 font-bold">⚠️ CẢNH BÁO QUAN TRỌNG</p>
-                    <ul class="text-left text-xs text-gray-300 mt-1 list-disc list-inside">
-                        <li>Key này chỉ có <b>hiệu lực trong 10 phút</b>.</li>
-                        <li>Chỉ dùng được <b>1 lần duy nhất</b>.</li>
-                        <li>F5 tải lại trang sẽ <b>giữ nguyên mã Key hiện tại</b>.</li>
-                    </ul>
+
+
+                <!-- =========================
+                     LOADING
+                ========================== -->
+
+                <div
+                    id="loadingScreen"
+                    class="section"
+                >
+
+                    <div class="circle">
+
+                        <svg viewBox="0 0 170 170">
+
+                            <circle
+                                class="track"
+                                cx="85"
+                                cy="85"
+                                r="75"
+                            />
+
+                            <circle
+                                id="progress"
+                                class="progress"
+                                cx="85"
+                                cy="85"
+                                r="75"
+                            />
+
+                        </svg>
+
+                        <div class="circle-center">
+
+                            <div id="percent">
+                                0%
+                            </div>
+
+                            <div class="percent-small">
+                                VERIFYING
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="loading-title">
+                        ĐANG XÁC MINH...
+                    </div>
+
+                    <div class="loading-text">
+
+                        Không đóng hoặc tải lại trang.
+                        Hệ thống đang xử lý phiên xác minh
+                        của bạn.
+
+                    </div>
+
+                    <div
+                        id="loadingStatus"
+                        class="loading-status"
+                    >
+                        🔄 Đang khởi tạo...
+
+                    </div>
+
                 </div>
+
+
+                <!-- =========================
+                     KEY
+                ========================== -->
+
+                <div
+                    id="keyContainer"
+                    class="section"
+                >
+
+                    <div class="key-box">
+
+                        <div class="success-icon">
+                            ✓
+                        </div>
+
+                        <div class="key-title">
+                            XÁC MINH THÀNH CÔNG
+                        </div>
+
+                        <div class="key-description">
+
+                            Key đã được cấp thành công.
+                            Hãy sao chép Key bên dưới.
+
+                        </div>
+
+
+                        <div class="key-row">
+
+                            <div
+                                id="keyValue"
+                                class="key"
+                            >
+                                Đang tải...
+                            </div>
+
+                            <button
+                                id="copyButton"
+                                class="copy"
+                                onclick="copyKey()"
+                            >
+                                COPY
+                            </button>
+
+                        </div>
+
+
+                        <div class="expire">
+
+                            ⏱ Key hết hạn sau 10 phút
+                            kể từ lúc API cấp Key.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="footer">
+                    GRX KEY SYSTEM • SECURE VERIFICATION
+                </div>
+
             </div>
+
         </div>
+
     </div>
 
-    <script>
-        // Có hỗ trợ nhiều cách trả lời (có dấu/không dấu) để chống ức chế cho người dùng
-        const quizData = [
-            { question: "Câu 1: 12 x 12 bằng bao nhiêu?", answer: ["144"] },
-            { question: "Câu 2: H2O là công thức hóa học của chất nào?", answer: ["nước", "nuoc"] },
-            { question: "Câu 3: Hành tinh lớn nhất trong hệ mặt trời?", answer: ["sao mộc", "mộc tinh", "sao moc"] },
-            { question: "Câu 4: 1 Megabyte (MB) bằng bao nhiêu Kilobyte (KB)?", answer: ["1024", "1000"] },
-            { question: "Câu 5: Loài động vật lớn nhất Trái Đất hiện nay?", answer: ["cá voi xanh", "cá voi", "ca voi", "ca voi xanh"] },
-            { question: "Câu 6: Tam giác có 3 góc bằng nhau gọi là gì?", answer: ["tam giác đều", "đều", "tam giac deu"] },
-            { question: "Câu 7: Tác giả của tác phẩm Truyện Kiều là ai?", answer: ["nguyễn du", "nguyen du"] },
-            { question: "Câu 8: 50% của 200 là bao nhiêu?", answer: ["100"] },
-            { question: "Câu 9: Vị vua đầu tiên của triều đại nhà Lý là ai?", answer: ["lý thái tổ", "lý công uẩn", "ly thai to", "ly cong uan"] },
-            { question: "Câu 10: Hình lục giác có bao nhiêu cạnh?", answer: ["6", "sáu", "sau"] },
-            { question: "Câu 11: Thủ đô của nước Úc (Australia) là gì?", answer: ["canberra"] }
-        ];
+</div>
 
-        window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const tokenFromUrl = urlParams.get('auth');
-            const tokenFromLocal = localStorage.getItem('grx_secret_auth');
-            const tokenTime = localStorage.getItem('grx_auth_time');
 
-            // 1. Trường hợp truy cập link có đính kèm xác minh ?auth=
-            if (tokenFromUrl) {
-                const now = Date.now();
-                const fiveMinutes = 5 * 60 * 1000; // Khóa bảo vệ hợp lệ 5 phút
+<script>
 
-                // So khớp Token ở URL với Token ẩn trong máy & kiểm tra thời gian
-                if (tokenFromUrl === tokenFromLocal && tokenTime && (now - tokenTime < fiveMinutes)) {
-                    document.getElementById('mainKeyContainer').classList.remove('hidden');
-                    startKeyProcess();
-                } else {
-                    // Trái phép: Nếu là người lạ copy link hoặc tự gõ link
-                    document.getElementById('unauthorizedContainer').classList.remove('hidden');
-                    localStorage.removeItem('grx_secret_auth'); // Tiêu hủy dấu vết
-                }
-            } 
-            // 2. Trường hợp vào trang chủ
-            else {
-                // Kiểm tra giới hạn 4 lần / ngày
-                const today = new Date().toLocaleDateString('vi-VN');
-                let dateSaved = localStorage.getItem('grx_daily_date');
-                let count = parseInt(localStorage.getItem('grx_daily_count') || '0');
+/*
+============================================================
+    CẤU HÌNH API
+============================================================
 
-                // Sang ngày mới -> Reset lại đếm
-                if (dateSaved !== today) {
-                    localStorage.setItem('grx_daily_date', today);
-                    localStorage.setItem('grx_daily_count', '0');
-                    count = 0;
-                }
+    Ví dụ API của bạn:
 
-                if (count >= 4) {
-                    // Nếu đã lấy 4 lần -> Khóa không cho làm quiz nữa
-                    document.getElementById('limitContainer').classList.remove('hidden');
-                } else {
-                    // Hợp lệ -> Hiển thị bài quiz
-                    document.getElementById('quizContainer').classList.remove('hidden');
-                    renderQuestions();
-                }
-            }
+    https://grx-api.onrender.com
+
+    thì sửa thành:
+
+    const API_BASE_URL =
+        "https://grx-api.onrender.com";
+
+============================================================
+*/
+
+const API_BASE_URL =
+    "https://YOUR-API-DOMAIN.com";
+
+
+/*
+============================================================
+    CONFIG
+============================================================
+*/
+
+const MAX_DAILY_KEYS = 4;
+
+const KEY_CACHE_TIME =
+    10 * 60 * 1000;
+
+const VERIFICATION_TIME =
+    60 * 1000;
+
+
+/*
+============================================================
+    ELEMENTS
+============================================================
+*/
+
+const main =
+    document.getElementById("main");
+
+const unauthorized =
+    document.getElementById("unauthorized");
+
+const quiz =
+    document.getElementById("quiz");
+
+const answer =
+    document.getElementById("answer");
+
+const errorBox =
+    document.getElementById("error");
+
+const verifyButton =
+    document.getElementById("verifyButton");
+
+const loadingScreen =
+    document.getElementById("loadingScreen");
+
+const progress =
+    document.getElementById("progress");
+
+const percent =
+    document.getElementById("percent");
+
+const loadingStatus =
+    document.getElementById("loadingStatus");
+
+const keyContainer =
+    document.getElementById("keyContainer");
+
+const keyValue =
+    document.getElementById("keyValue");
+
+const copyButton =
+    document.getElementById("copyButton");
+
+const dailyCount =
+    document.getElementById("dailyCount");
+
+
+/*
+============================================================
+    DATE
+============================================================
+*/
+
+function getToday() {
+
+    const date = new Date();
+
+    return [
+        date.getFullYear(),
+        String(date.getMonth() + 1).padStart(2, "0"),
+        String(date.getDate()).padStart(2, "0")
+    ].join("-");
+
+}
+
+
+/*
+============================================================
+    DAILY DATA
+============================================================
+*/
+
+function getDailyData() {
+
+    const today =
+        getToday();
+
+    let data = null;
+
+    try {
+
+        data = JSON.parse(
+            localStorage.getItem(
+                "grx_daily_data"
+            ) || "null"
+        );
+
+    } catch {
+
+        data = null;
+
+    }
+
+    if (
+        !data ||
+        data.date !== today
+    ) {
+
+        data = {
+            date: today,
+            count: 0
         };
 
-        function renderQuestions() {
-            const list = document.getElementById('questionsList');
-            list.innerHTML = '';
-            quizData.forEach((q, index) => {
-                list.innerHTML += `
-                    <div class="bg-gray-800 p-3 rounded-lg border border-gray-700">
-                        <label class="block text-sm font-semibold text-gray-200 mb-1">${q.question}</label>
-                        <input type="text" id="ans_${index}" class="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500" placeholder="Nhập câu trả lời...">
-                    </div>
-                `;
-            });
-        }
+        localStorage.setItem(
+            "grx_daily_data",
+            JSON.stringify(data)
+        );
 
-        function checkAnswers() {
-            let allCorrect = true;
-            for (let i = 0; i < quizData.length; i++) {
-                // Tự động bỏ khoảng trắng thừa và in thường để dễ so khớp
-                const userAnswer = document.getElementById(`ans_${i}`).value.trim().toLowerCase();
-                
-                // Nếu mảng đáp án không chứa câu trả lời của người dùng -> Sai
-                if (!quizData[i].answer.includes(userAnswer)) {
-                    allCorrect = false;
-                    break;
+    }
+
+    return data;
+
+}
+
+
+function updateDailyCount() {
+
+    const data =
+        getDailyData();
+
+    dailyCount.textContent =
+        data.count;
+
+}
+
+
+function increaseDailyCount() {
+
+    const data =
+        getDailyData();
+
+    data.count++;
+
+    localStorage.setItem(
+        "grx_daily_data",
+        JSON.stringify(data)
+    );
+
+    updateDailyCount();
+
+}
+
+
+/*
+============================================================
+    AUTH
+============================================================
+*/
+
+function generateAuth() {
+
+    const random =
+        cryptoRandom();
+
+    const timestamp =
+        Date.now().toString(36);
+
+    return `grx_${random}_${timestamp}`;
+
+}
+
+
+function cryptoRandom() {
+
+    if (
+        window.crypto &&
+        window.crypto.getRandomValues
+    ) {
+
+        const array =
+            new Uint32Array(2);
+
+        window.crypto.getRandomValues(array);
+
+        return (
+            array[0].toString(36) +
+            array[1].toString(36)
+        );
+
+    }
+
+    return Math.random()
+        .toString(36)
+        .substring(2);
+
+}
+
+
+function saveAuth(auth) {
+
+    localStorage.setItem(
+        "grx_secret_auth",
+        auth
+    );
+
+    localStorage.setItem(
+        "grx_auth_time",
+        Date.now().toString()
+    );
+
+}
+
+
+function validateUrlAuth() {
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+    const urlAuth =
+        params.get("auth");
+
+    /*
+        Không có auth:
+        Cho phép trang hoạt động bình thường.
+    */
+
+    if (!urlAuth) {
+
+        return true;
+
+    }
+
+    const savedAuth =
+        localStorage.getItem(
+            "grx_secret_auth"
+        );
+
+    const authTime =
+        parseInt(
+            localStorage.getItem(
+                "grx_auth_time"
+            ) || "0"
+        );
+
+    const valid =
+        savedAuth === urlAuth &&
+        authTime > 0 &&
+        Date.now() - authTime <
+            KEY_CACHE_TIME;
+
+    if (!valid) {
+
+        main.style.display =
+            "none";
+
+        unauthorized.style.display =
+            "block";
+
+        return false;
+
+    }
+
+    return true;
+
+}
+
+
+/*
+============================================================
+    ERROR
+============================================================
+*/
+
+function showError(message) {
+
+    errorBox.textContent =
+        message;
+
+    errorBox.style.display =
+        "block";
+
+}
+
+
+function hideError() {
+
+    errorBox.textContent =
+        "";
+
+    errorBox.style.display =
+        "none";
+
+}
+
+
+/*
+============================================================
+    ENTER
+============================================================
+*/
+
+function enterSubmit(event) {
+
+    if (event.key === "Enter") {
+
+        event.preventDefault();
+
+        checkAnswer();
+
+    }
+
+}
+
+
+/*
+============================================================
+    CHECK ANSWER
+============================================================
+*/
+
+function checkAnswer() {
+
+    hideError();
+
+    const value =
+        answer.value
+            .trim()
+            .toLowerCase();
+
+    if (value !== "2") {
+
+        showError(
+            "❌ Câu trả lời không chính xác."
+        );
+
+        answer.focus();
+
+        return;
+
+    }
+
+
+    /*
+        Kiểm tra giới hạn trước
+        khi bắt đầu loading.
+    */
+
+    const data =
+        getDailyData();
+
+    if (
+        data.count >= MAX_DAILY_KEYS
+    ) {
+
+        showError(
+            "⚠️ Bạn đã sử dụng hết 4 lượt lấy Key hôm nay."
+        );
+
+        return;
+
+    }
+
+
+    answer.disabled =
+        true;
+
+    verifyButton.disabled =
+        true;
+
+    startVerification();
+
+}
+
+
+/*
+============================================================
+    60 SECOND LOADING
+============================================================
+*/
+
+function startVerification() {
+
+    quiz.style.display =
+        "none";
+
+    loadingScreen.style.display =
+        "block";
+
+
+    const circumference =
+        2 * Math.PI * 75;
+
+
+    progress.style.strokeDasharray =
+        circumference;
+
+    progress.style.strokeDashoffset =
+        circumference;
+
+
+    const start =
+        Date.now();
+
+
+    let lastStage =
+        -1;
+
+
+    const timer =
+        setInterval(
+            () => {
+
+                const elapsed =
+                    Date.now() - start;
+
+                const ratio =
+                    Math.min(
+                        elapsed /
+                        VERIFICATION_TIME,
+                        1
+                    );
+
+
+                const value =
+                    Math.floor(
+                        ratio * 100
+                    );
+
+
+                const offset =
+                    circumference -
+                    ratio *
+                    circumference;
+
+
+                progress.style.strokeDashoffset =
+                    offset;
+
+                percent.textContent =
+                    `${value}%`;
+
+
+                /*
+                    Status
+                */
+
+                let stage;
+
+                if (value < 15) {
+
+                    stage = 0;
+
+                } else if (value < 30) {
+
+                    stage = 1;
+
+                } else if (value < 50) {
+
+                    stage = 2;
+
+                } else if (value < 70) {
+
+                    stage = 3;
+
+                } else if (value < 90) {
+
+                    stage = 4;
+
+                } else {
+
+                    stage = 5;
+
                 }
-            }
 
-            if (allCorrect) {
-                // -- CỘNG 1 LƯỢT VÀO GIỚI HẠN NGÀY --
-                let count = parseInt(localStorage.getItem('grx_daily_count') || '0');
-                localStorage.setItem('grx_daily_count', (count + 1).toString());
 
-                // -- CẤP TOKEN VƯỢT RÀO BẢO MẬT --
-                const randomToken = "AUTH_" + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
-                
-                localStorage.setItem('grx_secret_auth', randomToken);
-                localStorage.setItem('grx_auth_time', Date.now());
+                if (stage !== lastStage) {
 
-                // Chuyển hướng URL sang link nhận Key
-                window.location.href = window.location.pathname + "?auth=" + randomToken;
-            } else {
-                const errorMsg = document.getElementById('quizError');
-                errorMsg.classList.remove('hidden');
-                setTimeout(() => errorMsg.classList.add('hidden'), 3000);
-            }
+                    lastStage =
+                        stage;
+
+
+                    const messages = [
+
+                        "🔄 Đang khởi tạo hệ thống...",
+
+                        "🔐 Đang kiểm tra phiên xác thực...",
+
+                        "🛡️ Đang kiểm tra trạng thái hệ thống...",
+
+                        "⚙️ Đang đồng bộ dữ liệu...",
+
+                        "🔎 Đang hoàn tất xác minh...",
+
+                        "✨ Đang chuẩn bị cấp Key..."
+
+                    ];
+
+
+                    loadingStatus.textContent =
+                        messages[stage];
+
+                }
+
+
+                if (ratio >= 1) {
+
+                    clearInterval(timer);
+
+                    finishVerification();
+
+                }
+
+            },
+            100
+        );
+
+}
+
+
+/*
+============================================================
+    FINISH
+============================================================
+*/
+
+async function finishVerification() {
+
+    percent.textContent =
+        "100%";
+
+    loadingStatus.textContent =
+        "🌐 Đang kết nối API cấp Key...";
+
+
+    try {
+
+        const key =
+            await requestKey();
+
+
+        /*
+            Chỉ khi API thực sự trả Key
+            mới tăng lượt.
+        */
+
+        increaseDailyCount();
+
+
+        /*
+            Lưu auth
+        */
+
+        const auth =
+            generateAuth();
+
+        saveAuth(auth);
+
+
+        /*
+            Lưu Key cache
+        */
+
+        localStorage.setItem(
+            "grx_cached_key",
+            key
+        );
+
+        localStorage.setItem(
+            "grx_cached_key_time",
+            Date.now().toString()
+        );
+
+
+        /*
+            Hiển thị Key
+        */
+
+        showKey(key);
+
+
+    } catch (error) {
+
+        console.error(
+            "GRX API ERROR:",
+            error
+        );
+
+
+        loadingStatus.textContent =
+            "❌ Không thể kết nối máy chủ API.";
+
+
+        setTimeout(() => {
+
+            loadingScreen.style.display =
+                "none";
+
+            quiz.style.display =
+                "block";
+
+            verifyButton.disabled =
+                false;
+
+            answer.disabled =
+                false;
+
+            showError(
+                "❌ Không thể lấy Key từ API. Kiểm tra API_BASE_URL hoặc máy chủ Node.js rồi thử lại."
+            );
+
+        }, 1200);
+
+    }
+
+}
+
+
+/*
+============================================================
+    REQUEST API
+============================================================
+*/
+
+async function requestKey() {
+
+    if (
+        !API_BASE_URL ||
+        API_BASE_URL.includes(
+            "YOUR-API-DOMAIN"
+        )
+    ) {
+
+        throw new Error(
+            "API_BASE_URL chưa được cấu hình."
+        );
+
+    }
+
+
+    const url =
+        `${API_BASE_URL.replace(/\/+$/, "")}/api/get-key`;
+
+
+    const controller =
+        new AbortController();
+
+
+    const timeout =
+        setTimeout(
+            () => controller.abort(),
+            15000
+        );
+
+
+    try {
+
+        const response =
+            await fetch(
+                url,
+                {
+                    method: "GET",
+
+                    headers: {
+                        "Accept":
+                            "application/json"
+                    },
+
+                    signal:
+                        controller.signal
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                `HTTP ${response.status}`
+            );
+
         }
 
-        async function startKeyProcess() {
-            const container = document.getElementById('keyContainer');
-            const display = document.getElementById('keyDisplay');
-            const loadingArea = document.getElementById('loadingArea');
 
-            // --- TÍNH NĂNG MỚI: DỮ NGUYÊN KEY KHI RELOAD ---
-            const savedKey = localStorage.getItem('grx_current_key');
-            const savedKeyTime = localStorage.getItem('grx_current_key_time');
-            const tenMins = 10 * 60 * 1000;
+        const data =
+            await response.json();
 
-            // Nếu Key cũ vẫn còn sống (< 10 phút), hiển thị luôn, không xin Bot nữa
-            if (savedKey && savedKeyTime && (Date.now() - savedKeyTime < tenMins)) {
-                setTimeout(() => {
-                    display.value = savedKey;
-                    loadingArea.classList.add('hidden');
-                    container.classList.remove('hidden');
-                }, 1000); // 1 giây giả vờ loading
-                return; 
-            }
 
-            // Nếu không có Key cũ hoặc đã quá hạn -> Xin cấp Key mới
-            try {
-                // Đang gọi về Local Bot (Thay đổi URL nếu up lên server thật)
-                const response = await fetch('http://localhost:3000/api/get-key');
-                
-                if (!response.ok) throw new Error("Bot không phản hồi");
-                
-                const data = await response.json();
-                const newKey = data.key;
-                
-                // Lưu lại bộ nhớ máy để nếu F5 thì lấy ra xài lại
-                localStorage.setItem('grx_current_key', newKey);
-                localStorage.setItem('grx_current_key_time', Date.now());
+        if (
+            !data ||
+            typeof data.key !== "string" ||
+            !data.key.trim()
+        ) {
 
-                setTimeout(() => {
-                    display.value = newKey;
-                    loadingArea.classList.add('hidden');
-                    container.classList.remove('hidden');
-                }, 1200);
+            throw new Error(
+                "API không trả về key."
+            );
 
-            } catch (error) {
-                console.error("Lỗi:", error);
-                loadingArea.innerHTML = `<p class="text-red-500 font-bold">❌ Lỗi: Không thể kết nối tới Bot Discord!</p><p class="text-sm text-gray-400 mt-2">Hãy chắc chắn Bot đang bật và API hoạt động (Đang gọi tới localhost:3000).</p>`;
-            }
         }
 
-        function copyKey() {
-            const keyText = document.getElementById('keyDisplay');
-            const copyMsg = document.getElementById('copyMsg');
-            
-            keyText.select();
-            keyText.setSelectionRange(0, 99999); 
-            document.execCommand("copy");
 
-            copyMsg.classList.remove('opacity-0');
-            setTimeout(() => {
-                copyMsg.classList.add('opacity-0');
-            }, 2000);
+        return data.key.trim();
+
+
+    } finally {
+
+        clearTimeout(timeout);
+
+    }
+
+}
+
+
+/*
+============================================================
+    SHOW KEY
+============================================================
+*/
+
+function showKey(key) {
+
+    quiz.style.display =
+        "none";
+
+    loadingScreen.style.display =
+        "none";
+
+    keyContainer.style.display =
+        "block";
+
+    keyValue.textContent =
+        key;
+
+}
+
+
+/*
+============================================================
+    COPY
+============================================================
+*/
+
+async function copyKey() {
+
+    const key =
+        keyValue.textContent.trim();
+
+
+    if (
+        !key ||
+        key === "Đang tải..."
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        await navigator.clipboard.writeText(
+            key
+        );
+
+    } catch {
+
+        const textarea =
+            document.createElement(
+                "textarea"
+            );
+
+        textarea.value =
+            key;
+
+        textarea.style.position =
+            "fixed";
+
+        textarea.style.opacity =
+            "0";
+
+        document.body.appendChild(
+            textarea
+        );
+
+        textarea.select();
+
+        document.execCommand(
+            "copy"
+        );
+
+        textarea.remove();
+
+    }
+
+
+    copyButton.textContent =
+        "ĐÃ COPY ✓";
+
+
+    setTimeout(() => {
+
+        copyButton.textContent =
+            "COPY";
+
+    }, 2000);
+
+}
+
+
+/*
+============================================================
+    CACHE KEY
+============================================================
+*/
+
+function checkCachedKey() {
+
+    const key =
+        localStorage.getItem(
+            "grx_cached_key"
+        );
+
+    const time =
+        parseInt(
+            localStorage.getItem(
+                "grx_cached_key_time"
+            ) || "0"
+        );
+
+
+    if (
+        key &&
+        time &&
+        Date.now() - time <
+            KEY_CACHE_TIME
+    ) {
+
+        showKey(key);
+
+        return true;
+
+    }
+
+
+    /*
+        Cache hết hạn
+    */
+
+    localStorage.removeItem(
+        "grx_cached_key"
+    );
+
+    localStorage.removeItem(
+        "grx_cached_key_time"
+    );
+
+
+    return false;
+
+}
+
+
+/*
+============================================================
+    START
+============================================================
+*/
+
+window.addEventListener(
+    "load",
+    () => {
+
+        updateDailyCount();
+
+
+        /*
+            Kiểm tra auth
+        */
+
+        if (
+            !validateUrlAuth()
+        ) {
+
+            return;
+
         }
-    </script>
+
+
+        /*
+            Nếu còn Key cache
+            thì hiện lại Key.
+        */
+
+        if (
+            checkCachedKey()
+        ) {
+
+            return;
+
+        }
+
+
+        /*
+            Focus vào ô nhập
+        */
+
+        setTimeout(
+            () => {
+
+                answer.focus();
+
+            },
+            300
+        );
+
+    }
+);
+
+</script>
+
 </body>
 </html>
