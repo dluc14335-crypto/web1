@@ -2,12 +2,11 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>GRX Key System</title>
 
 <style>
-
 * {
     box-sizing: border-box;
     margin: 0;
@@ -19,84 +18,50 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
+    font-family: Arial, Helvetica, sans-serif;
     background:
-        radial-gradient(
-            circle at top,
-            #18234a,
-            #070914 55%,
-            #03040a
-        );
-
+        radial-gradient(circle at top, #18234a, #070914 55%, #03040a);
     color: white;
 }
 
 .container {
     width: 420px;
     max-width: 92%;
-
     padding: 35px;
-
     border-radius: 22px;
-
-    background:
-        rgba(12, 15, 30, 0.95);
-
-    border:
-        1px solid rgba(100, 120, 255, 0.35);
-
-    box-shadow:
-        0 0 40px rgba(50, 70, 255, 0.25);
+    background: rgba(12, 15, 30, 0.95);
+    border: 1px solid rgba(100, 120, 255, 0.35);
+    box-shadow: 0 0 40px rgba(50, 70, 255, 0.25);
 }
 
 .logo {
     text-align: center;
-
     font-size: 34px;
     font-weight: 900;
-
     margin-bottom: 10px;
 }
 
 .subtitle {
     text-align: center;
-
     color: #9ca3af;
-
     margin-bottom: 30px;
 }
 
 .question {
     font-size: 22px;
-
     text-align: center;
-
     margin-bottom: 20px;
 }
 
 input {
     width: 100%;
-
     padding: 15px;
-
     border-radius: 12px;
-
-    border:
-        1px solid #30364f;
-
+    border: 1px solid #30364f;
     background: #0b0e1b;
-
     color: white;
-
     outline: none;
-
     text-align: center;
-
     font-size: 18px;
 }
 
@@ -106,35 +71,26 @@ input:focus {
 
 button {
     width: 100%;
-
     margin-top: 15px;
-
     padding: 15px;
-
     border: 0;
-
     border-radius: 12px;
-
-    background:
-        linear-gradient(
-            90deg,
-            #5865f2,
-            #7c3aed
-        );
-
+    background: linear-gradient(90deg, #5865f2, #7c3aed);
     color: white;
-
     font-size: 16px;
-
     font-weight: bold;
-
     cursor: pointer;
-
     transition: 0.2s;
 }
 
 button:hover {
     transform: translateY(-2px);
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
 }
 
 .hidden {
@@ -143,67 +99,41 @@ button:hover {
 
 .loading-title {
     text-align: center;
-
     font-size: 22px;
-
     margin-bottom: 20px;
 }
 
 .progress {
     width: 100%;
-
     height: 14px;
-
     background: #171a2a;
-
     border-radius: 20px;
-
     overflow: hidden;
 }
 
 .progress-bar {
     height: 100%;
-
     width: 0%;
-
-    background:
-        linear-gradient(
-            90deg,
-            #5865f2,
-            #a855f7
-        );
-
+    background: linear-gradient(90deg, #5865f2, #a855f7);
     transition: width 1s linear;
 }
 
 .percent {
     text-align: center;
-
     margin-top: 15px;
-
     color: #a5b4fc;
 }
 
 .key-box {
     margin-top: 20px;
-
     padding: 18px;
-
     background: #080b16;
-
-    border:
-        1px solid #5865f2;
-
+    border: 1px solid #5865f2;
     border-radius: 12px;
-
     text-align: center;
-
     font-size: 21px;
-
     font-weight: bold;
-
     word-break: break-all;
-
     color: #8ea0ff;
 }
 
@@ -213,11 +143,8 @@ button:hover {
 
 .status {
     text-align: center;
-
     margin-top: 15px;
-
     color: #9ca3af;
-
     font-size: 14px;
 }
 
@@ -228,7 +155,6 @@ button:hover {
 .success {
     color: #57f287;
 }
-
 </style>
 </head>
 
@@ -236,16 +162,11 @@ button:hover {
 
 <div class="container">
 
-    <div class="logo">
-        GRX
-    </div>
+    <div class="logo">GRX</div>
 
-    <div class="subtitle">
-        Key System
-    </div>
+    <div class="subtitle">Key System</div>
 
     <!-- QUESTION -->
-
     <div id="questionBox">
 
         <div class="question">
@@ -256,9 +177,13 @@ button:hover {
             id="answer"
             type="number"
             placeholder="Nhập đáp án"
+            autocomplete="off"
         >
 
-        <button onclick="checkAnswer()">
+        <button
+            id="answerButton"
+            onclick="checkAnswer()"
+        >
             Xác nhận
         </button>
 
@@ -270,7 +195,6 @@ button:hover {
     </div>
 
     <!-- LOADING -->
-
     <div
         id="loadingBox"
         class="hidden"
@@ -281,12 +205,10 @@ button:hover {
         </div>
 
         <div class="progress">
-
             <div
                 id="progressBar"
                 class="progress-bar"
             ></div>
-
         </div>
 
         <div
@@ -306,7 +228,6 @@ button:hover {
     </div>
 
     <!-- RESULT -->
-
     <div
         id="resultBox"
         class="hidden"
@@ -319,10 +240,10 @@ button:hover {
         <div
             id="key"
             class="key-box"
-        >
-        </div>
+        ></div>
 
         <button
+            id="copyButton"
             class="copy"
             onclick="copyKey()"
         >
@@ -345,17 +266,24 @@ button:hover {
 <script>
 
 /*
-    QUAN TRỌNG:
-    Sau khi deploy API lên Render,
-    thay URL bên dưới bằng URL Render của bạn.
+====================================================
+GRX KEY SYSTEM
+====================================================
 
-    Ví dụ:
+QUAN TRỌNG:
+Thay URL bên dưới bằng URL Web Service THẬT
+của bạn trên Render.
 
-    https://grx-key-api.onrender.com
+Ví dụ:
+
+https://grx-key-system.onrender.com
+
+KHÔNG thêm /api/get-key ở đây.
+Code bên dưới sẽ tự thêm.
+====================================================
 */
 
-const API_URL =
-    "https://YOUR-API-NAME.onrender.com";
+const API_URL = "https://YOUR-API-NAME.onrender.com";
 
 
 /* =========================
@@ -371,10 +299,7 @@ function checkAnswer() {
             .trim();
 
     const status =
-        document
-            .getElementById(
-                "questionStatus"
-            );
+        document.getElementById("questionStatus");
 
     if (answer !== "2") {
 
@@ -387,19 +312,18 @@ function checkAnswer() {
         return;
     }
 
-    status.textContent =
-        "";
+    status.textContent = "";
 
     document
-        .getElementById(
-            "questionBox"
-        )
+        .getElementById("answerButton")
+        .disabled = true;
+
+    document
+        .getElementById("questionBox")
         .classList.add("hidden");
 
     document
-        .getElementById(
-            "loadingBox"
-        )
+        .getElementById("loadingBox")
         .classList.remove("hidden");
 
     startLoading();
@@ -417,19 +341,13 @@ function startLoading() {
     const total = 60;
 
     const bar =
-        document.getElementById(
-            "progressBar"
-        );
+        document.getElementById("progressBar");
 
     const percent =
-        document.getElementById(
-            "percent"
-        );
+        document.getElementById("percent");
 
     const status =
-        document.getElementById(
-            "loadingStatus"
-        );
+        document.getElementById("loadingStatus");
 
     const timer =
         setInterval(async () => {
@@ -437,8 +355,11 @@ function startLoading() {
             seconds++;
 
             const value =
-                Math.floor(
-                    seconds / total * 100
+                Math.min(
+                    100,
+                    Math.floor(
+                        (seconds / total) * 100
+                    )
                 );
 
             bar.style.width =
@@ -470,91 +391,185 @@ function startLoading() {
 
 async function getKey() {
 
+    const status =
+        document.getElementById("loadingStatus");
+
     try {
 
-        const response =
-            await fetch(
-                API_URL +
-                "/api/get-key"
+        /*
+        Kiểm tra URL API trước.
+        */
+        if (
+            !API_URL ||
+            API_URL.includes("YOUR-API-NAME")
+        ) {
+
+            throw new Error(
+                "Bạn chưa thay API_URL bằng URL Render thật."
             );
+        }
+
+        /*
+        Xóa dấu / cuối URL nếu có.
+        */
+        const baseURL =
+            API_URL.replace(/\/+$/, "");
+
+        const apiURL =
+            baseURL + "/api/get-key";
+
+        console.log(
+            "GRX API:",
+            apiURL
+        );
+
+        status.textContent =
+            "🔗 Đang kết nối máy chủ...";
+
+        const controller =
+            new AbortController();
+
+        const timeout =
+            setTimeout(() => {
+                controller.abort();
+            }, 20000);
+
+        let response;
+
+        try {
+
+            response =
+                await fetch(apiURL, {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json"
+                    },
+                    cache: "no-store",
+                    signal: controller.signal
+                });
+
+        } finally {
+
+            clearTimeout(timeout);
+        }
 
         if (!response.ok) {
 
             throw new Error(
-                "HTTP " +
-                response.status
+                `API trả về HTTP ${response.status}`
             );
         }
 
         const data =
             await response.json();
 
-        if (!data.key) {
+        console.log(
+            "GRX API response:",
+            data
+        );
+
+        if (
+            !data ||
+            typeof data.key !== "string" ||
+            !data.key.trim()
+        ) {
 
             throw new Error(
-                "API không trả về Key"
+                "API không trả về Key hợp lệ."
             );
         }
 
+        /*
+        Hiển thị kết quả.
+        */
         document
-            .getElementById(
-                "loadingBox"
-            )
-            .classList.add(
-                "hidden"
-            );
+            .getElementById("loadingBox")
+            .classList.add("hidden");
 
         document
-            .getElementById(
-                "resultBox"
-            )
-            .classList.remove(
-                "hidden"
-            );
+            .getElementById("resultBox")
+            .classList.remove("hidden");
 
         document
-            .getElementById(
-                "key"
-            )
+            .getElementById("key")
             .textContent =
                 data.key;
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "GRX API ERROR:",
+            error
+        );
 
-        const status =
-            document.getElementById(
-                "loadingStatus"
-            );
+        let message =
+            "❌ Không thể kết nối API.";
+
+        if (error.name === "AbortError") {
+
+            message =
+                "❌ API phản hồi quá lâu.";
+
+        } else if (
+            error.message &&
+            error.message.includes("YOUR-API-NAME")
+        ) {
+
+            message =
+                "❌ Bạn chưa nhập URL Render.";
+
+        } else if (
+            error.message
+        ) {
+
+            message =
+                "❌ API lỗi: " +
+                error.message;
+        }
 
         status.textContent =
-            "❌ Không thể kết nối API.";
+            message;
 
         status.className =
             "status error";
 
+        /*
+        Hiển thị thêm trong Console
+        để dễ kiểm tra nếu có lỗi.
+        */
+        console.error(
+            "API URL:",
+            API_URL
+        );
     }
 }
 
 
 /* =========================
-   COPY
+   COPY KEY
 ========================= */
 
 async function copyKey() {
 
     const key =
         document
-            .getElementById(
-                "key"
-            )
-            .textContent;
+            .getElementById("key")
+            .textContent
+            .trim();
 
     const status =
-        document.getElementById(
-            "copyStatus"
-        );
+        document.getElementById("copyStatus");
+
+    if (!key) {
+
+        status.textContent =
+            "❌ Không có Key để sao chép.";
+
+        status.className =
+            "status error";
+
+        return;
+    }
 
     try {
 
@@ -568,15 +583,78 @@ async function copyKey() {
         status.className =
             "status success";
 
-    } catch {
+    } catch (error) {
 
-        status.textContent =
-            "❌ Không thể sao chép.";
+        console.error(
+            "Copy error:",
+            error
+        );
 
-        status.className =
-            "status error";
+        /*
+        Fallback cho một số trình duyệt.
+        */
+        try {
+
+            const textarea =
+                document.createElement("textarea");
+
+            textarea.value = key;
+
+            textarea.style.position =
+                "fixed";
+
+            textarea.style.opacity =
+                "0";
+
+            document.body.appendChild(
+                textarea
+            );
+
+            textarea.focus();
+
+            textarea.select();
+
+            document.execCommand(
+                "copy"
+            );
+
+            textarea.remove();
+
+            status.textContent =
+                "✅ Đã sao chép Key!";
+
+            status.className =
+                "status success";
+
+        } catch {
+
+            status.textContent =
+                "❌ Không thể sao chép tự động.";
+
+            status.className =
+                "status error";
+        }
     }
 }
+
+
+/* =========================
+   ENTER TO SUBMIT
+========================= */
+
+document
+    .getElementById("answer")
+    .addEventListener(
+        "keydown",
+        function(event) {
+
+            if (event.key === "Enter") {
+
+                checkAnswer();
+            }
+
+        }
+    );
 
 </script>
 
